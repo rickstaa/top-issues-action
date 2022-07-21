@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 
 import {getOctokit} from '@actions/github'
+import {RequestError} from '@octokit/request-error'
 
 dotenv.config()
 
@@ -29,39 +30,51 @@ const fetchOpenIssues = async (
   user: string,
   repo: string
 ): Promise<IssueNode[]> => {
-  const {repository} = await octokit.graphql<IssuesResponse>(
-    `
-      {
-        repository(owner: "${user}", name: "${repo}") {
-          open_issues: issues(first: 100, states: OPEN) {
-            nodes {
-              number
-              title
-              positive: reactions(content: THUMBS_UP) {
-                totalCount
-              }
-              negative: reactions(content: THUMBS_DOWN) {
-                totalCount
-              }
-              labels(first: 10) {
-                nodes {
-                  name
+  try {
+    const {repository} = await octokit.graphql<IssuesResponse>(
+      `
+        {
+          repository(owner: "${user}", name: "${repo}") {
+            open_issues: issues(first: 100, states: OPEN) {
+              nodes {
+                number
+                title
+                positive: reactions(content: THUMBS_UP) {
+                  totalCount
+                }
+                negative: reactions(content: THUMBS_DOWN) {
+                  totalCount
+                }
+                labels(first: 10) {
+                  nodes {
+                    name
+                  }
                 }
               }
-            }
-            pageInfo {
-              endCursor
-              hasNextPage
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
             }
           }
         }
-      }
-    `
-  )
-  return repository.open_issues.nodes
+      `
+    )
+    return repository.open_issues.nodes
+  } catch (error) {
+    if (error instanceof RequestError) {
+      throw Error(
+        `Could not retrieve top issues because GraphQl request due to: ${error.message}.`
+      )
+    }
+    throw error
+  }
 }
 
 const getTopIssues = (issues: IssueNode[], size: number): IssueNode[] => {
+  issues = issues.filter(
+    issue => issue.positive.totalCount - issue.negative.totalCount > 0
+  ) // Remove issues with no reactions
   issues = issues.sort((a: IssueNode, b: IssueNode) => {
     return (
       b.positive.totalCount -
@@ -72,23 +85,19 @@ const getTopIssues = (issues: IssueNode[], size: number): IssueNode[] => {
   return issues.slice(0, size)
 }
 
+const getOldTopIssues = (issues: IssueNode[]): IssueNode[] => {
+  return issues.filter((issue: IssueNode) => {
+    return issue.labels.nodes.some(label => label.name === 'popular')
+  })
+}
+
 async function run(): Promise<void> {
   const user = 'anuraghazra'
   const repo = 'github-readme-stats'
 
-  // Retrieve issues
-  let issues: IssueNode[]
-  try {
-    issues = await fetchOpenIssues(user, repo)
-  } catch (error) {
-    // TODO: see https://github.com/octokit/request-error.js/issues/246
-    if (error instanceof Error && error.name === 'HttpError') {
-      console.error(`GraphQl request failed due to: ${error.message}`)
-    }
-    throw error
-  }
-
-  // Retrieve top 10 issues
+  // Retrieve top issues
+  const issues = await fetchOpenIssues(user, repo)
+  const oldTopIssues = getOldTopIssues(issues)
   const topIssues = getTopIssues(issues, 10)
 
   // Print Top Issues
@@ -100,7 +109,6 @@ async function run(): Promise<void> {
       }`
     )
   }
-  console.log('title')
 }
 
 run()
