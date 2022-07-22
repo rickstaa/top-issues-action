@@ -1,11 +1,14 @@
 import dotenv from 'dotenv'
 
-import {getOctokit} from '@actions/github'
+import {getInput} from '@actions/core'
+import {context, getOctokit} from '@actions/github'
 import {RequestError} from '@octokit/request-error'
 
 dotenv.config()
 
-// Types
+/**
+ * Issue object returned by GraphQL.
+ */
 interface IssueNode {
   number: number
   title: string
@@ -13,19 +16,40 @@ interface IssueNode {
   negative: {totalCount: number}
   labels: {nodes: {name: string}[]}
 }
+
+/**
+ * Open issues object returned by GraphQL.
+ */
 interface OpenIssues {
   nodes: IssueNode[]
   pageInfo: {endCursor: string; hasNextPage: boolean}
 }
+
+/**
+ *  Issues response object returned by GraphQL.
+ */
 interface IssuesResponse {
   repository: {
     open_issues: OpenIssues
   }
 }
 
-// Create octokit client
-const octokit = getOctokit(`${process.env.GITHUB_TOKEN}`)
+/**
+ * Repository info.
+ */
+interface RepoInfo {
+  user: string
+  repo: string
+}
 
+type GithubContext = typeof context
+
+/**
+ * Fetches open issues from a repository.
+ * @param user The user name of the repository owner.
+ * @param repo The name of the repository.
+ * @returns The open issues.
+ */
 const fetchOpenIssues = async (
   user: string,
   repo: string
@@ -64,13 +88,19 @@ const fetchOpenIssues = async (
   } catch (error) {
     if (error instanceof RequestError) {
       throw Error(
-        `Could not retrieve top issues because GraphQl request due to: ${error.message}.`
+        `Could not retrieve top issues using GraphQl: ${error.message}.`
       )
     }
     throw error
   }
 }
 
+/**
+ * Get the top issues.
+ * @param issues Issues to get the top issues from.
+ * @param size Number of issues to get.
+ * @returns Top issues.
+ */
 const getTopIssues = (issues: IssueNode[], size: number): IssueNode[] => {
   issues = issues.filter(
     issue => issue.positive.totalCount - issue.negative.totalCount > 0
@@ -85,15 +115,48 @@ const getTopIssues = (issues: IssueNode[], size: number): IssueNode[] => {
   return issues.slice(0, size)
 }
 
+/**
+ * Get the old top issues.
+ * @param issues Issues to get the old top issues from.
+ * @returns Old top issues.
+ */
 const getOldTopIssues = (issues: IssueNode[]): IssueNode[] => {
   return issues.filter((issue: IssueNode) => {
     return issue.labels.nodes.some(label => label.name === 'popular')
   })
 }
 
+/**
+ * Retrieve information about the repository that ran the action.
+ * @param context Action context.
+ * @returns Repository information.
+ */
+const getRepoInfo = (ctx: GithubContext): RepoInfo => {
+  try {
+    return {
+      user: ctx.repo.owner,
+      repo: ctx.repo.repo
+    }
+  } catch (error) {
+    return {
+      user: 'rickstaa',
+      repo: 'top-issues-action'
+    }
+  }
+}
+
+// Create octokit client
+const github_token: string | undefined = getInput('github_token')
+  ? getInput('github_token')
+  : process.env.GITHUB_TOKEN
+if (!github_token) throw Error('Github token is missing.')
+const octokit = getOctokit(github_token)
+
+/**
+ * Main function.
+ */
 async function run(): Promise<void> {
-  const user = 'anuraghazra'
-  const repo = 'github-readme-stats'
+  const {user, repo} = getRepoInfo(context)
 
   // Retrieve top issues
   const issues = await fetchOpenIssues(user, repo)

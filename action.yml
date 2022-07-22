@@ -6,6 +6,10 @@ inputs:
     required: true
     description: 'input description here'
     default: 'default value if applicable'
+  github_token:
+    description: "GITHUB_TOKEN."
+    required: true
+    default: ${{ github.token }}
 runs:
   using: 'node16'
   main: 'dist/index.js'
