@@ -38,7 +38,7 @@ interface IssuesResponse {
  * Repository info.
  */
 interface RepoInfo {
-  user: string
+  owner: string
   repo: string
 }
 
@@ -121,8 +121,17 @@ const getTopIssues = (issues: IssueNode[], size: number): IssueNode[] => {
  * @returns Old top issues.
  */
 const getOldTopIssues = (issues: IssueNode[]): IssueNode[] => {
+  return issuesWithLabel(issues, 'top issue')
+}
+
+/**
+ * Retrieve issues that have the label.
+ * @param issues The issues to check.
+ * @param label The label to check for.
+ */
+const issuesWithLabel = (issues: IssueNode[], label: string): IssueNode[] => {
   return issues.filter((issue: IssueNode) => {
-    return issue.labels.nodes.some(label => label.name === 'popular')
+    return issue.labels.nodes.some(lab => lab.name === label)
   })
 }
 
@@ -134,12 +143,12 @@ const getOldTopIssues = (issues: IssueNode[]): IssueNode[] => {
 const getRepoInfo = (ctx: GithubContext): RepoInfo => {
   try {
     return {
-      user: ctx.repo.owner,
+      owner: ctx.repo.owner,
       repo: ctx.repo.repo
     }
   } catch (error) {
     return {
-      user: 'rickstaa',
+      owner: 'rickstaa',
       repo: 'top-issues-action'
     }
   }
@@ -152,20 +161,132 @@ const github_token: string | undefined = getInput('github_token')
 if (!github_token) throw Error('Github token is missing.')
 const octokit = getOctokit(github_token)
 
+// Get action inputs
+const top_list_size: number = getInput('top_list_size')
+  ? parseInt(getInput('top_list_size'))
+  : 10
+const top_issues_label: string = getInput('top_issues_label')
+  ? getInput('top_issues_label')
+  : 'top issues'
+
+/**
+ * Add a label to a list of issues.
+ * @param owner The owner of the repository.
+ * @param repo The name of the repository.
+ * @param issues The issues to add the label to.
+ * @param label The label to add.
+ * @returns
+ */
+const labelIssues = (
+  owner: string,
+  repo: string,
+  issues: IssueNode[],
+  label: string
+): void => {
+  for (const issue of issues) {
+    addLabelToIssue(owner, repo, issue, label)
+  }
+}
+
+/**
+ * Rove a label from a list of issues.
+ * @param owner The owner of the repository.
+ * @param repo The name of the repository.
+ * @param issues The issues to add the label to.
+ * @param label The label to add.
+ * @returns
+ */
+const removeLabelFromIssues = (
+  owner: string,
+  repo: string,
+  issues: IssueNode[],
+  label: string
+): void => {
+  for (const issue of issues) {
+    removeLabelFromIssue(owner, repo, issue, label)
+  }
+}
+
+/**
+ * Add a label to an issue.
+ * @param owner The owner of the repository.
+ * @param repo The name of the repository.
+ * @param issue The issue to add the label to.
+ * @param label The label to add.
+ * @returns
+ */
+const addLabelToIssue = (
+  owner: string,
+  repo: string,
+  issue: IssueNode,
+  label: string
+): void => {
+  if (!issue.labels.nodes.some(lab => lab.name === label)) {
+    octokit.rest.issues.addLabels({
+      owner,
+      repo,
+      issue_number: issue.number,
+      labels: [label]
+    })
+  }
+}
+
+/**
+ * Remove a label from an issue.
+ * @param owner The owner of the repository.
+ * @param repo The name of the repository.
+ * @param issue The issue to add the label to.
+ * @param label The label to add.
+ * @returns
+ */
+const removeLabelFromIssue = (
+  owner: string,
+  repo: string,
+  issue: IssueNode,
+  label: string
+): void => {
+  if (issue.labels.nodes.some(lab => lab.name === label)) {
+    octokit.rest.issues.removeLabel({
+      owner,
+      repo,
+      issue_number: issue.number,
+      name: label
+    })
+  }
+}
+
+/**
+ * Get the difference between to lists of issues.
+ * @param issuesOne First list of issues.
+ * @param issuesTwo Second list of issues.
+ * @returns The difference between the two lists.
+ */
+const getIssuesDifference = (
+  issuesOne: IssueNode[],
+  issuesTwo: IssueNode[]
+): IssueNode[] => {
+  return issuesOne.filter(
+    ({number: id1}) => !issuesTwo.some(({number: id2}) => id2 === id1)
+  )
+}
+
 /**
  * Main function.
  */
 async function run(): Promise<void> {
-  const {user, repo} = getRepoInfo(context)
+  const {owner, repo} = getRepoInfo(context)
 
-  // Retrieve top issues
-  const issues = await fetchOpenIssues(user, repo)
-  const oldTopIssues = getOldTopIssues(issues)
-  const topIssues = getTopIssues(issues, 10)
+  // Retrieve and label top issues
+  const issues = await fetchOpenIssues(owner, repo)
+  const currentTopIssues = getOldTopIssues(issues)
+  const newTopIssues = getTopIssues(issues, top_list_size)
+  labelIssues(owner, repo, newTopIssues, top_issues_label)
+  const topIssuesToPrune = getIssuesDifference(currentTopIssues, newTopIssues)
+  removeLabelFromIssues(owner, repo, topIssuesToPrune, top_issues_label)
 
   // Print Top Issues
   console.log('Top 10 issues:')
-  for (const issue of topIssues) {
+  for (const issue of newTopIssues) {
     console.log(
       `  - ${issue.title}: ${
         issue.positive.totalCount - issue.negative.totalCount

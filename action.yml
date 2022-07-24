@@ -2,14 +2,18 @@ name: 'Your name here'
 description: 'Provide a description here'
 author: 'Your name or organization here'
 inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
   github_token:
     description: "GITHUB_TOKEN."
     required: true
     default: ${{ github.token }}
+  top_list_size:
+    required: false
+    description: 'The number of top issues.'
+    default: '10'
+  top_issues_label:
+    required: false
+    description: 'The label used for labeling top issues.'
+    default: 'top issues'
 runs:
   using: 'node16'
   main: 'dist/index.js'
