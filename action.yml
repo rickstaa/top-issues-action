@@ -1,6 +1,7 @@
 name: 'Top Issues action'
 description: 'Labels and displays the top-upvoted (i.e. 👍) issues and pull requests in your repository.'
 author: 'Rick Staa'
+icon: arrow-up
 inputs:
   # General inputs.
   github_token:
@@ -120,6 +121,9 @@ inputs:
     required: false
     description: 'The colour used for the top pull request label.'
     default: '#41A285'
+branding:
+  color: "blue"
+  icon: "arrow-up"
 runs:
   using: 'node16'
   main: 'dist/index.js'
