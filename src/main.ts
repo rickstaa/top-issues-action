@@ -42,17 +42,16 @@ const TOP_BUG_LABEL_COLOUR = getInput('top_bug_label_colour')
 const TOP_FEATURES = Boolean(getInput('top_features'))
 const FEATURE_LABEL = getInput('feature_label')
 const TOP_FEATURE_LABEL = getInput('top_feature_label')
-const TOP_FEATURE_LABEL_DESCRIPTION = getInput('top_feature_label_text')
+const TOP_FEATURE_LABEL_DESCRIPTION = getInput('top_feature_label_description')
 const TOP_FEATURE_LABEL_COLOUR = getInput('top_feature_label_colour')
 const TOP_PULL_REQUEST = Boolean(getInput('top_pull_requests'))
 const TOP_PULL_REQUEST_LABEL = getInput('top_pull_request_label')
 const TOP_PULL_REQUEST_LABEL_DESCRIPTION = getInput(
-  'top_pull_request_label_text'
+  'top_pull_request_label_description'
 )
 const TOP_PULL_REQUEST_LABEL_COLOUR = getInput('top_pull_request_label_colour')
 
 // Create octokit client
-
 if (!GITHUB_TOKEN) throw Error('Github token is missing.')
 export const octokit = getOctokit(GITHUB_TOKEN)
 
