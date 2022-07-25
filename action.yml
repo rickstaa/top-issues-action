@@ -14,6 +14,10 @@ inputs:
     required: false
     description: 'Whether negative emotions should be subtracted from the positive emotion count.'
     default: 'true'
+  top_issues:
+    required: false
+    description: 'Enable top issues.'
+    default: 'true'
   top_issue_label:
     required: false
     description: 'The label used for labeling top issues.'
@@ -26,6 +30,10 @@ inputs:
     required: false
     description: 'The colour used for the top issues label.'
     default: '#027E9D'
+  top_bugs:
+    required: false
+    description: 'Enable top bugs.'
+    default: 'true'
   bug_label:
     required: false
     description: 'The label used for bug issues.'
@@ -42,6 +50,10 @@ inputs:
     required: false
     description: 'The colour used for the top bug label.'
     default: '#B60205'
+  top_features:
+    required: false
+    description: 'Enable top feature requests.'
+    default: 'true'
   feature_label:
     required: false
     description: 'The label used for feature issues.'

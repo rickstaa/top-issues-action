@@ -161,6 +161,10 @@ const top_list_size: number = getInput('top_list_size')
 const subtract_negative: boolean = getInput('subtract_negative')
   ? Boolean(getInput('subtract_negative'))
   : true
+
+const top_issues: boolean = getInput('top_issues')
+  ? Boolean('top_issues')
+  : true
 const top_issue_label: string = getInput('top_issue_label')
   ? getInput('top_issue_label')
   : ':star: top issue'
@@ -172,6 +176,8 @@ const top_issue_label_description: string = getInput(
 const top_issue_label_colour: string = getInput('top_issue_label_colour')
   ? getInput('top_issue_label_colour')
   : '#027E9D'
+
+const top_bugs: boolean = getInput('top_bugs') ? Boolean('top_bugs') : true
 const bug_label: string = getInput('bug_label') ? getInput('bug_label') : 'bug'
 const top_bug_label: string = getInput('top_bug_label')
   ? getInput('top_bug_label')
@@ -182,6 +188,10 @@ const top_bug_label_text: string = getInput('top_bug_label_text')
 const top_bug_label_colour: string = getInput('top_bug_label_colour')
   ? getInput('top_bug_label_colour')
   : '#B60205'
+
+const top_features: boolean = getInput('top_features')
+  ? Boolean('top_features')
+  : true
 const feature_label: string = getInput('feature_label')
   ? getInput('feature_label')
   : 'enhancement'
@@ -391,46 +401,58 @@ async function run(): Promise<void> {
   const {owner, repo} = getRepoInfo(context)
   const issues = await fetchOpenIssues(owner, repo)
 
+  // Give warning if nothing to do.
+  if (!top_issues && !top_bugs && !top_features) {
+    console.log('Nothing to do 💤.') // Replace with action log.
+    return
+  }
+
   // Retrieve and label top issues
-  const currentTopIssues = issuesWithLabel(issues, top_issue_label)
-  const newTopIssues = getTopIssues(issues, top_list_size)
-  await labelTopIssues(
-    owner,
-    repo,
-    currentTopIssues,
-    newTopIssues,
-    top_issue_label,
-    top_issue_label_description,
-    top_issue_label_colour
-  )
+  if (top_issues) {
+    const currentTopIssues = issuesWithLabel(issues, top_issue_label)
+    const newTopIssues = getTopIssues(issues, top_list_size)
+    await labelTopIssues(
+      owner,
+      repo,
+      currentTopIssues,
+      newTopIssues,
+      top_issue_label,
+      top_issue_label_description,
+      top_issue_label_colour
+    )
+  }
 
   // Retrieve and label top bugs
-  const bugIssues = issuesWithLabel(issues, bug_label)
-  const currentTopBugs = issuesWithLabel(issues, top_bug_label)
-  const newTopBugs = getTopIssues(bugIssues, top_list_size)
-  await labelTopIssues(
-    owner,
-    repo,
-    currentTopBugs,
-    newTopBugs,
-    top_bug_label,
-    top_bug_label_text,
-    top_bug_label_colour
-  )
+  if (top_bugs) {
+    const bugIssues = issuesWithLabel(issues, bug_label)
+    const currentTopBugs = issuesWithLabel(issues, top_bug_label)
+    const newTopBugs = getTopIssues(bugIssues, top_list_size)
+    await labelTopIssues(
+      owner,
+      repo,
+      currentTopBugs,
+      newTopBugs,
+      top_bug_label,
+      top_bug_label_text,
+      top_bug_label_colour
+    )
+  }
 
   // Retrieve and label top features
-  const featureIssues = issuesWithLabel(issues, feature_label)
-  const currentTopFeatures = issuesWithLabel(issues, top_feature_label)
-  const newTopFeatures = getTopIssues(featureIssues, top_list_size)
-  await labelTopIssues(
-    owner,
-    repo,
-    currentTopFeatures,
-    newTopFeatures,
-    top_feature_label,
-    top_feature_label_text,
-    top_feature_label_colour
-  )
+  if (top_features) {
+    const featureIssues = issuesWithLabel(issues, feature_label)
+    const currentTopFeatures = issuesWithLabel(issues, top_feature_label)
+    const newTopFeatures = getTopIssues(featureIssues, top_list_size)
+    await labelTopIssues(
+      owner,
+      repo,
+      currentTopFeatures,
+      newTopFeatures,
+      top_feature_label,
+      top_feature_label_text,
+      top_feature_label_colour
+    )
+  }
 }
 
 run()
