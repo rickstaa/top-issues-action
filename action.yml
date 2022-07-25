@@ -1,7 +1,6 @@
 name: 'Top Issues action'
 description: 'Labels and displays the top-upvoted (i.e. 👍) issues and pull requests in your repository.'
 author: 'Rick Staa'
-icon: arrow-up
 inputs:
   # General inputs.
   github_token:
