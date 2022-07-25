@@ -14,10 +14,18 @@ inputs:
     required: false
     description: 'Whether negative emotions should be subtracted from the positive emotion count.'
     default: 'true'
-  top_issues_label:
+  top_issue_label:
     required: false
     description: 'The label used for labeling top issues.'
-    default: 'top issue'
+    default: ':star: top issue'
+  top_issue_label_description:
+    required: false
+    description: 'The description used for the top issues label.'
+    default: 'Top issue.'
+  top_issue_label_colour:
+    required: false
+    description: 'The colour used for the top issues label.'
+    default: '#027E9D'
   bug_label:
     required: false
     description: 'The label used for bug issues.'
@@ -25,15 +33,31 @@ inputs:
   top_bug_label:
     required: false
     description: 'The label used for labeling top bug issues.'
-    default: 'top bug'
+    default: ':star: top bug'
+  top_bug_label_description:
+    required: false
+    description: 'The description used for the top bug label.'
+    default: 'Top bug.'
+  top_bug_label_colour:
+    required: false
+    description: 'The colour used for the top bug label.'
+    default: '#B60205'
   feature_label:
     required: false
     description: 'The label used for feature issues.'
     default: 'bug'
   top_feature_label:
     required: false
-    description: 'The label used for labeling top feature issues.'
-    default: 'top feature'
+    description: 'The label used for labeling top feature request issues.'
+    default: ':star: top feature'
+  top_feature_label_description:
+    required: false
+    description: 'The description used for the top feature request label.'
+    default: 'Top feature request.'
+  top_feature_label_colour:
+    required: false
+    description: 'The colour used for the top feature request label.'
+    default: '#0E8A16'
 runs:
   using: 'node16'
   main: 'dist/index.js'

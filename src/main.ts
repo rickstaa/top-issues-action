@@ -155,25 +155,45 @@ if (!github_token) throw Error('Github token is missing.')
 const octokit = getOctokit(github_token)
 
 // Get action inputs
-const subtract_negative: number = getInput('subtract_negative')
-  ? Boolean(getInput('subtract_negative'))
-  : true
 const top_list_size: number = getInput('top_list_size')
   ? parseInt(getInput('top_list_size'))
   : 10
+const subtract_negative: boolean = getInput('subtract_negative')
+  ? Boolean(getInput('subtract_negative'))
+  : true
 const top_issue_label: string = getInput('top_issue_label')
   ? getInput('top_issue_label')
-  : 'top issue'
+  : ':star: top issue'
+const top_issue_label_description: string = getInput(
+  'top_issue_label_description'
+)
+  ? getInput('top_issue_label_description')
+  : 'Top issue.'
+const top_issue_label_colour: string = getInput('top_issue_label_colour')
+  ? getInput('top_issue_label_colour')
+  : '#027E9D'
 const bug_label: string = getInput('bug_label') ? getInput('bug_label') : 'bug'
 const top_bug_label: string = getInput('top_bug_label')
   ? getInput('top_bug_label')
-  : 'top bug'
+  : ':star: top bug'
+const top_bug_label_text: string = getInput('top_bug_label_text')
+  ? getInput('top_bug_label_text')
+  : 'Top bug.'
+const top_bug_label_colour: string = getInput('top_bug_label_colour')
+  ? getInput('top_bug_label_colour')
+  : '#B60205'
 const feature_label: string = getInput('feature_label')
   ? getInput('feature_label')
   : 'enhancement'
 const top_feature_label: string = getInput('top_feature_label')
   ? getInput('top_feature_label')
-  : 'top feature'
+  : ':star: top feature'
+const top_feature_label_text: string = getInput('top_feature_label_text')
+  ? getInput('top_feature_label_text')
+  : 'Top feature request.'
+const top_feature_label_colour: string = getInput('top_feature_label_colour')
+  ? getInput('top_feature_label_colour')
+  : '#0E8A16'
 
 /**
  * Add a label to a list of issues.
@@ -277,23 +297,91 @@ const getIssuesDifference = (
 }
 
 /**
+ * Make sure that the label exists with the correct colour and description.
+ * @param owner The owner of the repository.
+ * @param repo The name of the repository.
+ * @param topIssueLabel The label to check.
+ * @param topIssueLabelDescription The description of the label.
+ * @param topIssueLabelColour The colour of the label.
+ */
+const initTopLabel = async (
+  owner: string,
+  repo: string,
+  topIssueLabel: string,
+  topIssueLabelColour: string,
+  topIssueLabelDescription: string
+): Promise<void> => {
+  const topIssueLabelColourBare = topIssueLabelColour.replace('#', '')
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const labels = await octokit.rest.issues.listLabelsForRepo({
+        owner,
+        repo
+      })
+      const label = labels.data.find(
+        ({name: labelName}) => labelName === topIssueLabel
+      )
+
+      // Create label if it doesn't exist and update it if it does.
+      if (!label) {
+        await octokit.rest.issues.createLabel({
+          owner,
+          repo,
+          name: topIssueLabel,
+          color: topIssueLabelColourBare,
+          description: topIssueLabelDescription
+        })
+      } else {
+        if (
+          label.description !== topIssueLabelDescription ||
+          label.color !== topIssueLabelColourBare
+        ) {
+          await octokit.rest.issues.updateLabel({
+            owner,
+            repo,
+            name: topIssueLabel,
+            color: topIssueLabelColour,
+            description: topIssueLabelDescription
+          })
+        }
+      }
+      resolve()
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+/**
  * Label the top issues.
  * @param owner Repository owner.
  * @param repo Repository name.
  * @param currentTopIssues Current top issues.
- * @param newTopIssues  New top issues.
- * @param topIssuesLabel  Label to add to the top issues.
+ * @param newTopIssues New top issues.
+ * @param topIssueLabel Label to add to the top issues.
+ * @param topIssueLabelDescription Description of the top issues label.
+ * @param topIssueLabelColour Colour of the top issues label.
  */
-const labelTopIssues = (
+const labelTopIssues = async (
   owner: string,
   repo: string,
   currentTopIssues: IssueNode[],
   newTopIssues: IssueNode[],
-  topIssuesLabel: string
-): void => {
-  labelIssues(owner, repo, newTopIssues, topIssuesLabel)
+  topIssueLabel: string,
+  topIssueLabelDescription: string,
+  topIssueLabelColour: string
+): Promise<void> => {
+  await initTopLabel(
+    owner,
+    repo,
+    topIssueLabel,
+    topIssueLabelColour,
+    topIssueLabelDescription
+  )
+  labelIssues(owner, repo, newTopIssues, topIssueLabel)
   const topIssuesToPrune = getIssuesDifference(currentTopIssues, newTopIssues)
-  removeLabelFromIssues(owner, repo, topIssuesToPrune, topIssuesLabel)
+  removeLabelFromIssues(owner, repo, topIssuesToPrune, topIssueLabel)
 }
 
 /**
@@ -306,24 +394,42 @@ async function run(): Promise<void> {
   // Retrieve and label top issues
   const currentTopIssues = issuesWithLabel(issues, top_issue_label)
   const newTopIssues = getTopIssues(issues, top_list_size)
-  labelTopIssues(owner, repo, currentTopIssues, newTopIssues, top_issue_label)
+  await labelTopIssues(
+    owner,
+    repo,
+    currentTopIssues,
+    newTopIssues,
+    top_issue_label,
+    top_issue_label_description,
+    top_issue_label_colour
+  )
 
   // Retrieve and label top bugs
   const bugIssues = issuesWithLabel(issues, bug_label)
   const currentTopBugs = issuesWithLabel(issues, top_bug_label)
   const newTopBugs = getTopIssues(bugIssues, top_list_size)
-  labelTopIssues(owner, repo, currentTopBugs, newTopBugs, top_bug_label)
+  await labelTopIssues(
+    owner,
+    repo,
+    currentTopBugs,
+    newTopBugs,
+    top_bug_label,
+    top_bug_label_text,
+    top_bug_label_colour
+  )
 
   // Retrieve and label top features
   const featureIssues = issuesWithLabel(issues, feature_label)
   const currentTopFeatures = issuesWithLabel(issues, top_feature_label)
   const newTopFeatures = getTopIssues(featureIssues, top_list_size)
-  labelTopIssues(
+  await labelTopIssues(
     owner,
     repo,
     currentTopFeatures,
     newTopFeatures,
-    top_feature_label
+    top_feature_label,
+    top_feature_label_text,
+    top_feature_label_colour
   )
 }
 
