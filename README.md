@@ -2,104 +2,103 @@
   <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
 </p>
 
-# Create a JavaScript Action using TypeScript
+# 👍 Top Issues GitHub Action
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+A [GitHub Action](https://github.com/features/actions) that labels and displays the top-upvoted (i.e. 👍) issues and pull requests in your repository. It currently can:
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+-   Label top issues.
+-   Label top bugs.
+-   Label top feature requests.
+-   Label top pull requests.
+-   Display all of the above in a simple dashboard.
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+## Examples
 
-## Create an action from this template
+Example of the top issues/bugs/feature request labels:
 
-Click the `Use this Template` and provide the new repo details for your action
+![image](https://user-images.githubusercontent.com/17570430/180822191-cd81edfb-dce9-495d-8bab-713f1bd65a0c.png)
 
-## Code in Main
+Example of the top pull request label:
 
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
+![image](https://user-images.githubusercontent.com/17570430/180822271-386f9161-3c9d-406a-ae63-ff30515f9ca1.png)
 
-Install the dependencies  
-```bash
-$ npm install
-```
+Example of the top issues dashboard:
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
+![image](https://user-images.githubusercontent.com/17570430/180822123-884bf3ba-922c-476b-a5fc-d04931f4ee2a.png)
 
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
+## Usage
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
+### Pre-requisites
 
-...
-```
+Create a workflow `.yml` file in your `.github/workflows` directory. An [example workflow](#examples-workflow---create-dashboard-and-label-top-issues-bugs-features-and-pull-requests) is available below. For more information, reference the GitHub Help Documentation for [creating a workflow file](https://docs.github.com/en/actions/using-workflows#creating-a-workflow-file).
 
-## Change action.yml
+### Inputs
 
-The action.yml defines the inputs and output for your action.
+Various inputs are defined in [action.yml](action.yml) to let you configure the action:
 
-Update the action.yml with your name, description, inputs and outputs for your action.
+| Name                                 | Description                                                                                       | Default                     |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------- | --------------------------- |
+| `github_token`                       | Token used for authorizing interactions with the repository. Typically the `GITHUB_TOKEN` secret. | N/A                         |
+| `top_list_size`                      | The number of top issues to show.                                                                 | `10`                        |
+| `subtract_negative`                  | Subtract negative from positive reactions to get the total count.                                 | `true`                      |
+| `label`                              | Label top issues.                                                                                 | `false`                     |
+| `dashboard`                          | Create a dashboard that displays the top issues and pull requests.                                | `true`                      |
+| `dashboard_title`                    | Dashboard title.                                                                                  | `Top Issues  Dashboard`     |
+| `dashboard_label`                    | The label used for the top issues dashboard. title.                                               | :star: top issues dashboard |
+| `dashboard_label_description`        | The description used for the top issues dashboard label.                                          | Top issues dashboard.       |
+| `dashboard_label_colour`             | The colour used for the top issues dashboard label.                                               | `#EED801`                   |
+| `hide_dashboard_footer`              | Hide dashboard footer.                                                                            | `false`                     |
+| `top_issues`                         | Display top issues.                                                                               | `true`                      |
+| `top_issue_label`                    | The label used for labelling  top issues.                                                         | :star: top issue            |
+| `top_issue_label_description`        | The description used for the top issue label.                                                     | Top issue.                  |
+| `top_issue_label_colour`             | The colour used for the top issue label.                                                          | `#027E9D`                   |
+| `top_issue_label_description`        | The description used for the top issue label.                                                     | Top issue.                  |
+| `top_bugs`                           | Display top bugs.                                                                                 | `false`                     |
+| `bug_label`                          | The label that is used for bug issues.                                                            | `bug`                       |
+| `top_bug_label`                      | The label used for labelling  top bugs.                                                           | :star: top bug              |
+| `top_bug_label_description`          | The description used for the top bug label.                                                       | Top bug.                    |
+| `top_bug_label_colour`               | The description used for the top bug label.                                                       | `#B60205`                   |
+| `top_features`                       | Display top feature requests.                                                                     | `false`                     |
+| `feature_label`                      | The label that is used for feature requests.                                                      | `enhancement`               |
+| `top_feature_label`                  | The label used for labelling top feature request issues.                                          | :star: top feature          |
+| `top_feature_label_description`      | The description used for the top feature request label.                                           | Top feature request         |
+| `top_feature_label_colour`           | The colour used for the top feature request label.                                                | `#0E8A16`                   |
+| `top_pull_requests`                  | Display top pull requests.                                                                        | `false`                     |
+| `top_pull_requests_label`            | The label used for labelling  top pull request.                                                   | :star: top pull request     |
+| `top_pull_request_label_description` | The description used for the top pull request label.                                              | Top pull request.           |
+| `top_pull_request_label_colour`      | The colour used for the top pull request label.                                                   | `#41A285`                   |
 
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
+### Outputs
 
-## Change the Code
+This action currently does not have any outputs.
 
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
+### Examples workflow - Create Dashboard and label top issues, bugs, features and pull requests
 
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
+The following example uses the [schedule](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) event to run the top-issues-action every day with all features enabled.
 
 ```yaml
-uses: ./
-with:
-  milliseconds: 1000
+name: Top issues action.
+on:
+  schedule:
+  - cron:  '* * */1 * *'
+
+jobs:
+  showAndLabelTopIssues:
+    name: Display and label top issues.
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run top issues action
+      uses: rickstaa/top-issues-action@v1
+      env:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        label: true
+        dashboard: true
+        top_issues: true
+        top_bugs: true
+        top_features: true
+        top_pull_requests: true
 ```
 
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
+## Contributing
 
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+Feel free to open an issue if you have ideas on how to make this GitHub action better or if you want to report a bug! All contributions are welcome. :rocket: Please consult the [contribution guidelines](CONTRIBUTING.md) for more information.
