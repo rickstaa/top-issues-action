@@ -157,7 +157,7 @@ async function run(): Promise<void> {
       DASHBOARD_HEADER,
       HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : ''
     )
-    createDashboard(
+    await createDashboard(
       owner,
       repo,
       issues,

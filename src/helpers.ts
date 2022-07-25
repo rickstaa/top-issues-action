@@ -514,7 +514,7 @@ export const createDashboard = async (
     dashboardIssue = issues.filter(issue => issue.title === title)
   }
   if (dashboardIssue.length > 0) {
-    octokit.rest.issues.update({
+    await octokit.rest.issues.update({
       owner,
       repo,
       issue_number: dashboardIssue[0].number,
@@ -523,7 +523,7 @@ export const createDashboard = async (
       labels: [label]
     })
   } else {
-    octokit.rest.issues.create({
+    await octokit.rest.issues.create({
       owner,
       repo,
       title,
