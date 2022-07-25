@@ -1,7 +1,7 @@
 /**
  * @file Contains action helper functions.
  */
-import {getInput} from '@actions/core'
+import {getInput, setFailed} from '@actions/core'
 import {context} from '@actions/github'
 import {RequestError} from '@octokit/request-error'
 import {octokit} from './main'
@@ -111,9 +111,8 @@ export const getRepoInfo = (ctx: GithubContext): RepoInfo => {
       repo: ctx.repo.repo
     }
   } catch (error) {
-    // TODO: Change to action error.
     if (error instanceof Error) {
-      throw Error(
+      setFailed(
         `Repository and user information could not be retrieved: ${error.message}`
       )
     }
@@ -173,8 +172,7 @@ export const fetchOpenIssues = async (
       endCursor = repository.open_issues.pageInfo.endCursor
     } catch (error) {
       if (error instanceof RequestError) {
-        // TODO: Replace by github action error.
-        throw Error(
+        setFailed(
           `Could not retrieve top issues using GraphQl: ${error.message}.`
         )
       }

@@ -1,6 +1,7 @@
 /**
  * @file Main action file.
  */
+import {info} from '@actions/core'
 import {context, getOctokit} from '@actions/github'
 import dotenv from 'dotenv'
 import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
@@ -67,8 +68,7 @@ async function run(): Promise<void> {
 
   // Give warning if nothing to do.
   if ((!TOP_ISSUES && !TOP_BUGS && !TOP_FEATURES) || (!LABEL && !DASHBOARD)) {
-    // TODO: Replace with action log.
-    console.log('Nothing to do 💤.')
+    info('Nothing to do 💤.')
     return
   }
 
