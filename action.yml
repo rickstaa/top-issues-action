@@ -14,6 +14,34 @@ inputs:
     required: false
     description: 'Whether negative emotions should be subtracted from the positive emotion count.'
     default: 'true'
+  label:
+    required: false
+    description: 'Label the top issues/bugs/features and pull request.'
+    default: 'false'
+  dashboard:
+    required: false
+    description: 'Create a dashboard displaying the top issues/bugs/features and pull request.'
+    default: 'true'
+  dashboard_title:
+    required: false
+    description: 'Dashboard title.'
+    default: 'Top Issues Dashboard'
+  dashboard_label:
+    required: false
+    description: 'The label used for the top issues dashboard.'
+    default: ':star: top issues dashboard'
+  dashboard_label_description:
+    required: false
+    description: 'The description used for the top issues dashboard label.'
+    default: 'Top issues dashboard.'
+  dashboard_label_colour:
+    required: false
+    description: 'The colour used for the top issues dashboard label.'
+    default: '#EED801'
+  hide_dashboard_footer:
+    required: false
+    description: 'Hide dashboard footer.'
+    default: 'false'
   top_issues:
     required: false
     description: 'Enable top issues.'
@@ -85,7 +113,7 @@ inputs:
   top_pull_request_label_colour:
     required: false
     description: 'The colour used for the top feature request label.'
-    default: '#0E8A16'
+    default: '#41A285'
 runs:
   using: 'node16'
   main: 'dist/index.js'
