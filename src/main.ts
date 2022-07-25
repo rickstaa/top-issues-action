@@ -1,7 +1,7 @@
 /**
  * @file Main action file.
  */
-import {info} from '@actions/core'
+import {getInput, info} from '@actions/core'
 import {context, getOctokit} from '@actions/github'
 import dotenv from 'dotenv'
 import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
@@ -11,50 +11,48 @@ import {
   fetchOpenIssues,
   fetchOpenPRs,
   getRepoInfo,
-  getStringInput,
   getTopIssues,
   issuesWithLabel,
   labelTopIssues
 } from './helpers'
 import type {IssueNode} from './types'
 
-import {
-  BUG_LABEL,
-  DASHBOARD,
-  DASHBOARD_LABEL,
-  DASHBOARD_LABEL_COLOUR,
-  DASHBOARD_LABEL_DESCRIPTION,
-  DASHBOARD_TITLE,
-  FEATURE_LABEL,
-  HIDE_DASHBOARD_FOOTER,
-  LABEL,
-  SUBTRACT_NEGATIVE,
-  TOP_BUGS,
-  TOP_BUG_LABEL,
-  TOP_BUG_LABEL_COLOUR,
-  TOP_BUG_LABEL_DESCRIPTION,
-  TOP_FEATURES,
-  TOP_FEATURE_LABEL,
-  TOP_FEATURE_LABEL_COLOUR,
-  TOP_FEATURE_LABEL_DESCRIPTION,
-  TOP_ISSUES,
-  TOP_ISSUE_LABEL,
-  TOP_ISSUE_LABEL_COLOUR,
-  TOP_ISSUE_LABEL_DESCRIPTION,
-  TOP_LIST_SIZE,
-  TOP_PULL_REQUEST,
-  TOP_PULL_REQUEST_LABEL,
-  TOP_PULL_REQUEST_LABEL_COLOUR,
-  TOP_PULL_REQUEST_LABEL_DESCRIPTION
-} from './inputs'
-
 dotenv.config()
 
-// Create octokit client
-const GITHUB_TOKEN: string = getStringInput(
-  'github_token',
-  process.env.GITHUB_TOKEN ?? ''
+// == Get action inputs ==
+const GITHUB_TOKEN = getInput('github_token')
+const TOP_LIST_SIZE = parseInt(getInput('top_list_size'))
+const SUBTRACT_NEGATIVE = Boolean(getInput('subtract_negative'))
+const LABEL = Boolean(getInput('label'))
+const DASHBOARD = Boolean(getInput('dashboard'))
+const DASHBOARD_TITLE = getInput('dashboard_title')
+const DASHBOARD_LABEL = getInput('dashboard_label')
+const DASHBOARD_LABEL_DESCRIPTION = getInput('dashboard_label_description')
+const DASHBOARD_LABEL_COLOUR = getInput('dashboard_label_colour')
+const HIDE_DASHBOARD_FOOTER = Boolean(getInput('hide_dashboard_footer'))
+const TOP_ISSUES = Boolean(getInput('top_issues'))
+const TOP_ISSUE_LABEL = getInput('top_issue_label')
+const TOP_ISSUE_LABEL_DESCRIPTION = getInput('top_issue_label_description')
+const TOP_ISSUE_LABEL_COLOUR = getInput('top_issue_label_colour')
+const TOP_BUGS = Boolean(getInput('top_bugs'))
+const BUG_LABEL = getInput('bug_label')
+const TOP_BUG_LABEL = getInput('top_bug_label')
+const TOP_BUG_LABEL_DESCRIPTION = getInput('top_bug_label_description')
+const TOP_BUG_LABEL_COLOUR = getInput('top_bug_label_colour')
+const TOP_FEATURES = Boolean(getInput('top_features'))
+const FEATURE_LABEL = getInput('feature_label')
+const TOP_FEATURE_LABEL = getInput('top_feature_label')
+const TOP_FEATURE_LABEL_DESCRIPTION = getInput('top_feature_label_text')
+const TOP_FEATURE_LABEL_COLOUR = getInput('top_feature_label_colour')
+const TOP_PULL_REQUEST = Boolean(getInput('top_pull_requests'))
+const TOP_PULL_REQUEST_LABEL = getInput('top_pull_request_label')
+const TOP_PULL_REQUEST_LABEL_DESCRIPTION = getInput(
+  'top_pull_request_label_text'
 )
+const TOP_PULL_REQUEST_LABEL_COLOUR = getInput('top_pull_request_label_colour')
+
+// Create octokit client
+
 if (!GITHUB_TOKEN) throw Error('Github token is missing.')
 export const octokit = getOctokit(GITHUB_TOKEN)
 

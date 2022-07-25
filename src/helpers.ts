@@ -1,7 +1,7 @@
 /**
  * @file Contains action helper functions.
  */
-import {getInput, setFailed} from '@actions/core'
+import {setFailed} from '@actions/core'
 import {context} from '@actions/github'
 import {RequestError} from '@octokit/request-error'
 import {octokit} from './main'
@@ -65,39 +65,6 @@ interface PRsResponse {
 }
 
 // == Methods ==
-
-/**
- * Retrieves a action string input while handling the case where the input is not set.
- * @param name The name of the input.
- * @param defaultValue The default value of the input.
- * @returns
- */
-export const getStringInput = (name: string, defaultValue: string): string => {
-  return getInput(name) ? getInput(name) : defaultValue
-}
-
-/**
- * Retrieves a action integer input while handling the case where the input is not set.
- * @param name The name of the input.
- * @param defaultValue The default value of the input.
- * @returns
- */
-export const getIntegerInput = (name: string, defaultValue: number): number => {
-  return getInput(name) ? parseInt(getInput(name)) : defaultValue
-}
-
-/**
- * Retrieves a action boolean input while handling the case where the input is not set.
- * @param name The name of the input.
- * @param defaultValue The default value of the input.
- * @returns
- */
-export const getBooleanInput = (
-  name: string,
-  defaultValue: boolean
-): boolean => {
-  return getInput(name) ? Boolean(getInput(name)) : defaultValue
-}
 
 /**
  * Retrieve information about the repository that ran the action.
