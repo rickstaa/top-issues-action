@@ -12,6 +12,20 @@ A [GitHub Action](https://github.com/features/actions) that labels and displays 
 -   Label top pull requests.
 -   Display all of the above in a simple dashboard.
 
+## Table of content
+
+-   [Table of content](#table-of-content)
+-   [Examples](#examples)
+    -   [Top issues/bugs/feature request labels example](#top-issuesbugsfeature-request-labels-example)
+    -   [Top pull request label example](#top-pull-request-label-example)
+    -   [Top issues dashboard](#top-issues-dashboard)
+-   [Usage](#usage)
+    -   [Pre-requisites](#pre-requisites)
+    -   [Inputs](#inputs)
+    -   [Outputs](#outputs)
+    -   [Examples workflow - Create Dashboard and label top issues, bugs, features and pull requests](#examples-workflow---create-dashboard-and-label-top-issues-bugs-features-and-pull-requests)
+-   [Contributing](#contributing)
+
 ## Examples
 
 ### Top issues/bugs/feature request labels example
