@@ -14,15 +14,15 @@ A [GitHub Action](https://github.com/features/actions) that labels and displays 
 
 ## Examples
 
-Example of the top issues/bugs/feature request labels:
+### Top issues/bugs/feature request labels example
 
 ![image](https://user-images.githubusercontent.com/17570430/180822191-cd81edfb-dce9-495d-8bab-713f1bd65a0c.png)
 
-Example of the top pull request label:
+### Top pull request label example
 
 ![image](https://user-images.githubusercontent.com/17570430/180822271-386f9161-3c9d-406a-ae63-ff30515f9ca1.png)
 
-Example of the top issues dashboard:
+### Top issues dashboard
 
 ![image](https://user-images.githubusercontent.com/17570430/180822123-884bf3ba-922c-476b-a5fc-d04931f4ee2a.png)
 
