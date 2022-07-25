@@ -54,7 +54,6 @@ const TOP_PULL_REQUEST_LABEL_COLOUR = getInput('top_pull_request_label_colour')
 // Create octokit client
 
 if (!GITHUB_TOKEN) throw Error('Github token is missing.')
-console.log(GITHUB_TOKEN)
 export const octokit = getOctokit(GITHUB_TOKEN)
 
 /**
