@@ -10,10 +10,30 @@ inputs:
     required: false
     description: 'The number of top issues.'
     default: '10'
+  subtract_negative:
+    required: false
+    description: 'Whether negative emotions should be subtracted from the positive emotion count.'
+    default: 'true'
   top_issues_label:
     required: false
     description: 'The label used for labeling top issues.'
-    default: 'top issues'
+    default: 'top issue'
+  bug_label:
+    required: false
+    description: 'The label used for bug issues.'
+    default: 'bug'
+  top_bug_label:
+    required: false
+    description: 'The label used for labeling top bug issues.'
+    default: 'top bug'
+  feature_label:
+    required: false
+    description: 'The label used for feature issues.'
+    default: 'bug'
+  top_feature_label:
+    required: false
+    description: 'The label used for labeling top feature issues.'
+    default: 'top feature'
 runs:
   using: 'node16'
   main: 'dist/index.js'

@@ -97,31 +97,24 @@ const fetchOpenIssues = async (
 
 /**
  * Get the top issues.
- * @param issues Issues to get the top issues from.
+ * @param issues Issues object to get the top issues from.
  * @param size Number of issues to get.
  * @returns Top issues.
  */
 const getTopIssues = (issues: IssueNode[], size: number): IssueNode[] => {
-  issues = issues.filter(
-    issue => issue.positive.totalCount - issue.negative.totalCount > 0
+  issues = issues.filter(issue =>
+    subtract_negative
+      ? issue.positive.totalCount - issue.negative.totalCount
+      : issue.positive.totalCount > 0
   ) // Remove issues with no reactions
   issues = issues.sort((a: IssueNode, b: IssueNode) => {
-    return (
-      b.positive.totalCount -
-      b.negative.totalCount -
-      (a.positive.totalCount - a.negative.totalCount)
-    )
+    return subtract_negative
+      ? b.positive.totalCount -
+          b.negative.totalCount -
+          (a.positive.totalCount - a.negative.totalCount)
+      : b.positive.totalCount - a.positive.totalCount
   })
   return issues.slice(0, size)
-}
-
-/**
- * Get the old top issues.
- * @param issues Issues to get the old top issues from.
- * @returns Old top issues.
- */
-const getOldTopIssues = (issues: IssueNode[]): IssueNode[] => {
-  return issuesWithLabel(issues, 'top issue')
 }
 
 /**
@@ -162,12 +155,25 @@ if (!github_token) throw Error('Github token is missing.')
 const octokit = getOctokit(github_token)
 
 // Get action inputs
+const subtract_negative: number = getInput('subtract_negative')
+  ? Boolean(getInput('subtract_negative'))
+  : true
 const top_list_size: number = getInput('top_list_size')
   ? parseInt(getInput('top_list_size'))
   : 10
-const top_issues_label: string = getInput('top_issues_label')
-  ? getInput('top_issues_label')
-  : 'top issues'
+const top_issue_label: string = getInput('top_issue_label')
+  ? getInput('top_issue_label')
+  : 'top issue'
+const bug_label: string = getInput('bug_label') ? getInput('bug_label') : 'bug'
+const top_bug_label: string = getInput('top_bug_label')
+  ? getInput('top_bug_label')
+  : 'top bug'
+const feature_label: string = getInput('feature_label')
+  ? getInput('feature_label')
+  : 'enhancement'
+const top_feature_label: string = getInput('top_feature_label')
+  ? getInput('top_feature_label')
+  : 'top feature'
 
 /**
  * Add a label to a list of issues.
@@ -271,28 +277,54 @@ const getIssuesDifference = (
 }
 
 /**
+ * Label the top issues.
+ * @param owner Repository owner.
+ * @param repo Repository name.
+ * @param currentTopIssues Current top issues.
+ * @param newTopIssues  New top issues.
+ * @param topIssuesLabel  Label to add to the top issues.
+ */
+const labelTopIssues = (
+  owner: string,
+  repo: string,
+  currentTopIssues: IssueNode[],
+  newTopIssues: IssueNode[],
+  topIssuesLabel: string
+): void => {
+  labelIssues(owner, repo, newTopIssues, topIssuesLabel)
+  const topIssuesToPrune = getIssuesDifference(currentTopIssues, newTopIssues)
+  removeLabelFromIssues(owner, repo, topIssuesToPrune, topIssuesLabel)
+}
+
+/**
  * Main function.
  */
 async function run(): Promise<void> {
   const {owner, repo} = getRepoInfo(context)
+  const issues = await fetchOpenIssues(owner, repo)
 
   // Retrieve and label top issues
-  const issues = await fetchOpenIssues(owner, repo)
-  const currentTopIssues = getOldTopIssues(issues)
+  const currentTopIssues = issuesWithLabel(issues, top_issue_label)
   const newTopIssues = getTopIssues(issues, top_list_size)
-  labelIssues(owner, repo, newTopIssues, top_issues_label)
-  const topIssuesToPrune = getIssuesDifference(currentTopIssues, newTopIssues)
-  removeLabelFromIssues(owner, repo, topIssuesToPrune, top_issues_label)
+  labelTopIssues(owner, repo, currentTopIssues, newTopIssues, top_issue_label)
 
-  // Print Top Issues
-  console.log('Top 10 issues:')
-  for (const issue of newTopIssues) {
-    console.log(
-      `  - ${issue.title}: ${
-        issue.positive.totalCount - issue.negative.totalCount
-      }`
-    )
-  }
+  // Retrieve and label top bugs
+  const bugIssues = issuesWithLabel(issues, bug_label)
+  const currentTopBugs = issuesWithLabel(issues, top_bug_label)
+  const newTopBugs = getTopIssues(bugIssues, top_list_size)
+  labelTopIssues(owner, repo, currentTopBugs, newTopBugs, top_bug_label)
+
+  // Retrieve and label top features
+  const featureIssues = issuesWithLabel(issues, feature_label)
+  const currentTopFeatures = issuesWithLabel(issues, top_feature_label)
+  const newTopFeatures = getTopIssues(featureIssues, top_list_size)
+  labelTopIssues(
+    owner,
+    repo,
+    currentTopFeatures,
+    newTopFeatures,
+    top_feature_label
+  )
 }
 
 run()
