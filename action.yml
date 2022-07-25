@@ -4,24 +4,24 @@ author: 'Rick Staa'
 inputs:
   # General inputs.
   github_token:
-    description: "GITHUB_TOKEN."
+    description: "Token used for authorizing interactions with the repository.  Typically the `GITHUB_TOKEN` secret."
     required: true
     default: ${{ github.token }}
   top_list_size:
     required: false
-    description: 'The number of top issues.'
+    description: 'The number of top issues to show.'
     default: '10'
   subtract_negative:
     required: false
-    description: 'Whether to subtract negative reactions from the total count.'
+    description: 'Subtract negative from positive reactions to get the total count.'
     default: 'true'
   label:
     required: false
-    description: 'Label the top issues.'
+    description: 'Label top issues.'
     default: 'false'
   dashboard:
     required: false
-    description: 'Create a dashboard displaying the top issues and pull request.'
+    description: 'Create a dashboard that displays the top issues and pull requests.'
     default: 'true'
   # Dashboard related inputs,
   dashboard_title:
@@ -51,7 +51,7 @@ inputs:
     default: 'true'
   top_issue_label:
     required: false
-    description: 'The label used for labeling top issues.'
+    description: 'The label used for labelling  top issues.'
     default: ':star: top issue'
   top_issue_label_description:
     required: false
@@ -65,14 +65,14 @@ inputs:
   top_bugs:
     required: false
     description: 'Display top bugs.'
-    default: 'true'
+    default: 'false'
   bug_label:
     required: false
     description: 'The label that is used for bug issues.'
     default: 'bug'
   top_bug_label:
     required: false
-    description: 'The label used for labeling top bugs.'
+    description: 'The label used for labelling  top bugs.'
     default: ':star: top bug'
   top_bug_label_description:
     required: false
@@ -86,14 +86,14 @@ inputs:
   top_features:
     required: false
     description: 'Display top feature requests.'
-    default: 'true'
+    default: 'false'
   feature_label:
     required: false
     description: 'The label that is used for feature requests.'
     default: 'enhancement'
   top_feature_label:
     required: false
-    description: 'The label used for labeling top feature request issues.'
+    description: 'The label used for labelling top feature request issues.'
     default: ':star: top feature'
   top_feature_label_description:
     required: false
@@ -107,10 +107,10 @@ inputs:
   top_pull_requests:
     required: false
     description: 'Display top pull requests.'
-    default: 'true'
+    default: 'false'
   top_pull_requests_label:
     required: false
-    description: 'The label used for labeling top pull request.'
+    description: 'The label used for labelling  top pull request.'
     default: ':star: top pull request'
   top_pull_request_label_description:
     required: false

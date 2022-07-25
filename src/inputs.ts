@@ -7,7 +7,8 @@ import {getBooleanInput, getIntegerInput, getStringInput} from './helpers'
 // General inputs.
 export const TOP_LIST_SIZE = getIntegerInput('top_list_size', 10)
 export const SUBTRACT_NEGATIVE = getBooleanInput('subtract_negative', true)
-export const LABEL = getBooleanInput('label', false)
+// export const LABEL = getBooleanInput('label', false)
+export const LABEL = getBooleanInput('label', true)
 export const DASHBOARD = getBooleanInput('dashboard', true)
 
 // Dashboard related inputs.

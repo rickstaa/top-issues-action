@@ -503,7 +503,7 @@ export const createDashboardMarkdown = (
       .join('\n')}`
   }
   if (topFeatures.length > 0) {
-    dashboard_body += `\n\n## Top features\n`
+    dashboard_body += `\n\n## Top feature requests\n`
     dashboard_body += `\n${topFeatures
       .map((feature, idx) => `${idx + 1}. #${feature.number}`)
       .join('\n')}`
