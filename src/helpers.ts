@@ -131,47 +131,57 @@ export const fetchOpenIssues = async (
   user: string,
   repo: string
 ): Promise<IssueNode[]> => {
-  try {
-    const {repository} = await octokit.graphql<IssuesResponse>(
-      `
-          {
-            repository(owner: "${user}", name: "${repo}") {
-              open_issues: issues(first: 100, states: OPEN) {
-                nodes {
-                  number
-                  title
-                  positive: reactions(content: THUMBS_UP) {
-                    totalCount
-                  }
-                  negative: reactions(content: THUMBS_DOWN) {
-                    totalCount
-                  }
-                  labels(first: 10) {
-                    nodes {
-                      name
+  const openIssues: IssueNode[] = []
+  let hasNextPage = true
+  let endCursor: string | undefined
+  while (hasNextPage) {
+    try {
+      const {repository} = await octokit.graphql<IssuesResponse>(
+        `
+            {
+              repository(owner: "${user}", name: "${repo}") {
+                open_issues: issues(${
+                  endCursor ? `after: "${endCursor}", ` : ''
+                }
+                  first: 100, states: OPEN, orderBy: {field: CREATED_AT, direction: DESC}) {
+                  nodes {
+                    number
+                    title
+                    positive: reactions(content: THUMBS_UP) {
+                      totalCount
+                    }
+                    negative: reactions(content: THUMBS_DOWN) {
+                      totalCount
+                    }
+                    labels(first: 10) {
+                      nodes {
+                        name
+                      }
                     }
                   }
-                  body
-                }
-                pageInfo {
-                  endCursor
-                  hasNextPage
+                  pageInfo {
+                    endCursor
+                    hasNextPage
+                  }
                 }
               }
             }
-          }
-        `
-    )
-    return repository.open_issues.nodes
-  } catch (error) {
-    if (error instanceof RequestError) {
-      // TODO: Replace by github action error.
-      throw Error(
-        `Could not retrieve top issues using GraphQl: ${error.message}.`
+          `
       )
+      openIssues.push(...repository.open_issues.nodes)
+      hasNextPage = repository.open_issues.pageInfo.hasNextPage
+      endCursor = repository.open_issues.pageInfo.endCursor
+    } catch (error) {
+      if (error instanceof RequestError) {
+        // TODO: Replace by github action error.
+        throw Error(
+          `Could not retrieve top issues using GraphQl: ${error.message}.`
+        )
+      }
+      throw error
     }
-    throw error
   }
+  return openIssues
 }
 
 /**
@@ -184,12 +194,17 @@ export const fetchOpenPRs = async (
   user: string,
   repo: string
 ): Promise<PRNode[]> => {
-  try {
-    const {repository} = await octokit.graphql<PRsResponse>(
-      `
+  const openPRs: PRNode[] = []
+  let hasNextPage = true
+  let endCursor: string | undefined
+  while (hasNextPage) {
+    try {
+      const {repository} = await octokit.graphql<PRsResponse>(
+        `
         {
           repository(owner: "${user}", name: "${repo}") {
-            open_prs: pullRequests(first: 100, states: OPEN){
+            open_prs: pullRequests(${endCursor ? `after: "${endCursor}", ` : ''}
+              first: 100, states: OPEN, orderBy: {field: CREATED_AT, direction: DESC}) {
               nodes {
                 number
                 title
@@ -213,14 +228,20 @@ export const fetchOpenPRs = async (
           }
         }
       `
-    )
-    return repository.open_prs.nodes
-  } catch (error) {
-    if (error instanceof RequestError) {
-      throw Error(`Could not retrieve top PRs using GraphQl: ${error.message}.`)
+      )
+      openPRs.push(...repository.open_prs.nodes)
+      hasNextPage = repository.open_prs.pageInfo.hasNextPage
+      endCursor = repository.open_prs.pageInfo.endCursor
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw Error(
+          `Could not retrieve top PRs using GraphQl: ${error.message}.`
+        )
+      }
+      throw error
     }
-    throw error
   }
+  return openPRs
 }
 
 /**
