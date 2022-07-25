@@ -70,6 +70,22 @@ inputs:
     required: false
     description: 'The colour used for the top feature request label.'
     default: '#0E8A16'
+  top_pull_requests:
+    required: false
+    description: 'Enable top pull requests.'
+    default: 'true'
+  top_pull_requests_label:
+    required: false
+    description: 'The label used for labeling top pull request.'
+    default: ':star: top pull request'
+  top_pull_request_label_description:
+    required: false
+    description: 'The description used for the top feature request label.'
+    default: 'Top pull request.'
+  top_pull_request_label_colour:
+    required: false
+    description: 'The colour used for the top feature request label.'
+    default: '#0E8A16'
 runs:
   using: 'node16'
   main: 'dist/index.js'

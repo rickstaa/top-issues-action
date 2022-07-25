@@ -16,6 +16,16 @@ interface IssueNode {
   negative: {totalCount: number}
   labels: {nodes: {name: string}[]}
 }
+/**
+ * PR object returned by GraphQL.
+ */
+interface PRNode {
+  number: number
+  title: string
+  positive: {totalCount: number}
+  negative: {totalCount: number}
+  labels: {nodes: {name: string}[]}
+}
 
 /**
  * Open issues object returned by GraphQL.
@@ -26,11 +36,24 @@ interface OpenIssues {
 }
 
 /**
+ * Open PRs object returned by GraphQL.
+ */
+interface OpenPRs {
+  nodes: PRNode[]
+  pageInfo: {endCursor: string; hasNextPage: boolean}
+}
+
+/**
  *  Issues response object returned by GraphQL.
  */
 interface IssuesResponse {
   repository: {
     open_issues: OpenIssues
+  }
+}
+interface PRsResponse {
+  repository: {
+    open_prs: OpenPRs
   }
 }
 
@@ -45,7 +68,7 @@ interface RepoInfo {
 type GithubContext = typeof context
 
 /**
- * Fetches open issues from a repository.
+ * Fetch open issues from a repository.
  * @param user The user name of the repository owner.
  * @param repo The name of the repository.
  * @returns The open issues.
@@ -90,6 +113,52 @@ const fetchOpenIssues = async (
       throw Error(
         `Could not retrieve top issues using GraphQl: ${error.message}.`
       )
+    }
+    throw error
+  }
+}
+
+/**
+ * Fetch open PRs from a repository.
+ * @param user The user name of the repository owner.
+ * @param repo The name of the repository.
+ * @returns The open PRs.
+ */
+const fetchOpenPRs = async (user: string, repo: string): Promise<PRNode[]> => {
+  try {
+    const {repository} = await octokit.graphql<PRsResponse>(
+      `
+        {
+          repository(owner: "${user}", name: "${repo}") {
+            open_prs: pullRequests(first: 100, states: OPEN){
+              nodes {
+                number
+                title
+                positive: reactions(content: THUMBS_UP) {
+                  totalCount
+                }
+                negative: reactions(content: THUMBS_DOWN) {
+                  totalCount
+                }
+                labels(first: 10) {
+                  nodes {
+                    name
+                  }
+                }
+              }
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
+            }
+          }
+        }
+      `
+    )
+    return repository.open_prs.nodes
+  } catch (error) {
+    if (error instanceof RequestError) {
+      throw Error(`Could not retrieve top PRs using GraphQl: ${error.message}.`)
     }
     throw error
   }
@@ -203,6 +272,23 @@ const top_feature_label_text: string = getInput('top_feature_label_text')
   : 'Top feature request.'
 const top_feature_label_colour: string = getInput('top_feature_label_colour')
   ? getInput('top_feature_label_colour')
+  : '#0E8A16'
+
+const top_pull_requests: boolean = getInput('top_pull_requests')
+  ? Boolean('top_pull_requests')
+  : true
+const top_pull_request_label: string = getInput('top_pull_request_label')
+  ? getInput('top_pull_request_label')
+  : ':star: top pull request'
+const top_pull_request_label_text: string = getInput(
+  'top_pull_request_label_text'
+)
+  ? getInput('top_pull_request_label_text')
+  : 'Top pull request.'
+const top_pull_request_label_colour: string = getInput(
+  'top_pull_request_label_colour'
+)
+  ? getInput('top_pull_request_label_colour')
   : '#0E8A16'
 
 /**
@@ -400,6 +486,7 @@ const labelTopIssues = async (
 async function run(): Promise<void> {
   const {owner, repo} = getRepoInfo(context)
   const issues = await fetchOpenIssues(owner, repo)
+  const PRs = await fetchOpenPRs(owner, repo)
 
   // Give warning if nothing to do.
   if (!top_issues && !top_bugs && !top_features) {
@@ -451,6 +538,21 @@ async function run(): Promise<void> {
       top_feature_label,
       top_feature_label_text,
       top_feature_label_colour
+    )
+  }
+
+  // Retrieve and label top PRs
+  if (top_pull_requests) {
+    const currentTopPRs = issuesWithLabel(PRs, top_pull_request_label)
+    const newTopPRs = getTopIssues(PRs, top_list_size)
+    await labelTopIssues(
+      owner,
+      repo,
+      currentTopPRs,
+      newTopPRs,
+      top_pull_request_label,
+      top_pull_request_label_text,
+      top_pull_request_label_colour
     )
   }
 }
