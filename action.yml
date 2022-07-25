@@ -1,7 +1,8 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Top Issues action'
+description: 'Labels and displays the top-upvoted (i.e. 👍) issues and pull requests in your repository.'
+author: 'Rick Staa'
 inputs:
+  # General inputs.
   github_token:
     description: "GITHUB_TOKEN."
     required: true
@@ -12,16 +13,17 @@ inputs:
     default: '10'
   subtract_negative:
     required: false
-    description: 'Whether negative emotions should be subtracted from the positive emotion count.'
+    description: 'Whether to subtract negative reactions from the total count.'
     default: 'true'
   label:
     required: false
-    description: 'Label the top issues/bugs/features and pull request.'
+    description: 'Label the top issues.'
     default: 'false'
   dashboard:
     required: false
-    description: 'Create a dashboard displaying the top issues/bugs/features and pull request.'
+    description: 'Create a dashboard displaying the top issues and pull request.'
     default: 'true'
+  # Dashboard related inputs,
   dashboard_title:
     required: false
     description: 'Dashboard title.'
@@ -42,9 +44,10 @@ inputs:
     required: false
     description: 'Hide dashboard footer.'
     default: 'false'
+  # Top issues related inputs.
   top_issues:
     required: false
-    description: 'Enable top issues.'
+    description: 'Display top issues.'
     default: 'true'
   top_issue_label:
     required: false
@@ -52,23 +55,24 @@ inputs:
     default: ':star: top issue'
   top_issue_label_description:
     required: false
-    description: 'The description used for the top issues label.'
+    description: 'The description used for the top issue label.'
     default: 'Top issue.'
   top_issue_label_colour:
     required: false
-    description: 'The colour used for the top issues label.'
+    description: 'The colour used for the top issue label.'
     default: '#027E9D'
+  # Top bugs related inputs.
   top_bugs:
     required: false
-    description: 'Enable top bugs.'
+    description: 'Display top bugs.'
     default: 'true'
   bug_label:
     required: false
-    description: 'The label used for bug issues.'
+    description: 'The label that is used for bug issues.'
     default: 'bug'
   top_bug_label:
     required: false
-    description: 'The label used for labeling top bug issues.'
+    description: 'The label used for labeling top bugs.'
     default: ':star: top bug'
   top_bug_label_description:
     required: false
@@ -78,14 +82,15 @@ inputs:
     required: false
     description: 'The colour used for the top bug label.'
     default: '#B60205'
+  # Top features related inputs.
   top_features:
     required: false
-    description: 'Enable top feature requests.'
+    description: 'Display top feature requests.'
     default: 'true'
   feature_label:
     required: false
-    description: 'The label used for feature issues.'
-    default: 'bug'
+    description: 'The label that is used for feature requests.'
+    default: 'enhancement'
   top_feature_label:
     required: false
     description: 'The label used for labeling top feature request issues.'
@@ -98,9 +103,10 @@ inputs:
     required: false
     description: 'The colour used for the top feature request label.'
     default: '#0E8A16'
+  # Top pull request related inputs.
   top_pull_requests:
     required: false
-    description: 'Enable top pull requests.'
+    description: 'Display top pull requests.'
     default: 'true'
   top_pull_requests_label:
     required: false
@@ -108,11 +114,11 @@ inputs:
     default: ':star: top pull request'
   top_pull_request_label_description:
     required: false
-    description: 'The description used for the top feature request label.'
+    description: 'The description used for the top pull request label.'
     default: 'Top pull request.'
   top_pull_request_label_colour:
     required: false
-    description: 'The colour used for the top feature request label.'
+    description: 'The colour used for the top pull request label.'
     default: '#41A285'
 runs:
   using: 'node16'
