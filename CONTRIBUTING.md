@@ -21,7 +21,8 @@ Pull requests are the best way to propose changes to the codebase (we use [Githu
 3.  If you've changed APIs, update the documentation.
 4.  Ensure the test suite passes.
 5.  Make sure your code lints.
-6.  Issue that pull request!
+6.  Build the node package using the `npm run build` and `npm run package` commands.
+7.  Issue that pull request!
 
 ## Any contributions you make will be under the MIT Software License
 
@@ -49,7 +50,7 @@ People _love_ thorough bug reports. I'm not even kidding.
 
 ## Use a Consistent Coding Style
 
-We use [shfmt](https://github.com/mvdan/sh#shfmt) to format our shell scripts. The easiest way to use [shfmt](https://github.com/mvdan/sh#shfmt) is through the [bash-beautify](https://marketplace.visualstudio.com/items?itemName=shakram02.bash-beautify) or [shell-format](https://marketplace.visualstudio.com/items?itemName=foxundermoon.shell-format) VS Code extensions.
+We use [prettier](https://prettier.io/) formatter to format our typescript code. The easiest way to use [prettier](https://prettier.io/) is through the [prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) VS Code extensions. You are also advised to use [eslint](https://eslint.org/) for linting your code before.
 
 ## License
 
