@@ -12,6 +12,9 @@ import {
 } from '../src/helpers'
 import {IssueNode} from '../src/types'
 
+// == Mock functions ==
+jest.mock('@actions/github')
+
 // == Helper functions ==
 
 /**
