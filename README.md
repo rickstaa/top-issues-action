@@ -2,7 +2,7 @@
   <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
 </p>
 
-# 👍 Top Issues GitHub Action
+# 👍 Top Issues GitHub Action 
 
 A [GitHub Action](https://github.com/features/actions) that labels and displays the top-upvoted (i.e. 👍) issues and pull requests in your repository. It currently can:
 
