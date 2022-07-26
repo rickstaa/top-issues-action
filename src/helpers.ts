@@ -329,7 +329,7 @@ const addLabelToIssue = async (
     } catch (error) {
       if (error instanceof RequestError) {
         setFailed(
-          `Could not add label ${label} to issue ${issue.number}: ${error.message}`
+          `Could not add label '${label}' to issue '${issue.number}': ${error.message}`
         )
       }
       throw error
@@ -396,7 +396,7 @@ const removeLabelFromIssue = (
     } catch (error) {
       if (error instanceof RequestError) {
         setFailed(
-          `Could not remove label ${label} from issue ${issue.number}: ${error.message}`
+          `Could not remove label '${label}' from issue '${issue.number}': ${error.message}`
         )
       }
       throw error
@@ -453,7 +453,7 @@ export const labelTopIssues = async (
   } catch (error) {
     if (error instanceof RequestError) {
       setFailed(
-        `Something went wrong while initializing the ${topIssueLabel} label: ${error.message}`
+        `Something went wrong while initializing the issue '${topIssueLabel}' label: ${error.message}`
       )
     }
     throw error
@@ -538,7 +538,7 @@ export const createDashboard = async (
   } catch (error) {
     if (error instanceof RequestError) {
       setFailed(
-        `Something went wrong while initializing the ${label} label: ${error.message}`
+        `Something went wrong while initializing the dashboard '${label}' label: ${error.message}`
       )
     }
     throw error
@@ -560,7 +560,7 @@ export const createDashboard = async (
     } catch (error) {
       if (error instanceof RequestError) {
         setFailed(
-          `Could not update issue ${dashboardIssue[0].number}: ${error.message}`
+          `Could not update issue '${dashboardIssue[0].number}': ${error.message}`
         )
       }
       throw error
@@ -576,7 +576,7 @@ export const createDashboard = async (
       })
     } catch (error) {
       if (error instanceof RequestError) {
-        setFailed(`Could not create issue ${title}: ${error.message}`)
+        setFailed(`Could not create issue '${title}': ${error.message}`)
       }
       throw error
     }
