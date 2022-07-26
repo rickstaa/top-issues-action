@@ -24,7 +24,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
           label: true
           dashboard: true
-          top_issue: true
-          top_feature: true
-          top_bug: true
-          top_pull_request: true
+          top_issues: true
+          top_features: true
+          top_bugs: true
+          top_pull_requests: true
