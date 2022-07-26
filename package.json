@@ -1,6 +1,6 @@
 {
   "name": "top-issues-action",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Labels and displays the top-upvoted (i.e. +1) issues and pull requests in your repository.",
   "main": "lib/main.js",
