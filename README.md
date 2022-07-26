@@ -30,15 +30,15 @@ A [GitHub Action](https://github.com/features/actions) that labels and displays 
 
 ### Top issues/bugs/feature request labels example
 
-![image](https://user-images.githubusercontent.com/17570430/180822191-cd81edfb-dce9-495d-8bab-713f1bd65a0c.png)
+![image](https://user-images.githubusercontent.com/17570430/181007117-c0e6422a-90f6-4af4-a824-ae6e33dcfe95.png)
 
 ### Top pull request label example
 
-![image](https://user-images.githubusercontent.com/17570430/180822271-386f9161-3c9d-406a-ae63-ff30515f9ca1.png)
+![image](https://user-images.githubusercontent.com/17570430/181007179-5d949b9d-b4c6-4ec5-b3bd-552e0b56889f.png)
 
 ### Top issues dashboard
 
-![image](https://user-images.githubusercontent.com/17570430/180822123-884bf3ba-922c-476b-a5fc-d04931f4ee2a.png)
+![image](https://user-images.githubusercontent.com/17570430/181007033-21b4d3c7-6d50-4d61-94e7-067db38d6838.png)
 
 ## Usage
 
