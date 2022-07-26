@@ -1,7 +1,7 @@
 /**
  * @file Main action file.
  */
-import {getInput, info, setFailed} from '@actions/core'
+import {debug, getInput, info, setFailed} from '@actions/core'
 import {context, getOctokit} from '@actions/github'
 import dotenv from 'dotenv'
 import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
@@ -59,7 +59,9 @@ export const octokit = getOctokit(GITHUB_TOKEN)
  * Main function.
  */
 async function run(): Promise<void> {
+  debug('Fetching repo info...')
   const {owner, repo} = getRepoInfo(context)
+  debug('Fetching open Issues and PRs...')
   const issues = await fetchOpenIssues(owner, repo)
   const PRs = await fetchOpenPRs(owner, repo)
 
@@ -72,9 +74,11 @@ async function run(): Promise<void> {
   // Retrieve and label top issues.
   let newTopIssues: IssueNode[] = []
   if (TOP_ISSUES) {
+    debug('Gettting top issues...')
     const currentTopIssues = issuesWithLabel(issues, TOP_ISSUE_LABEL)
     newTopIssues = getTopIssues(issues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE)
     if (LABEL) {
+      debug('Labeling top issues...')
       await labelTopIssues(
         owner,
         repo,
@@ -90,10 +94,12 @@ async function run(): Promise<void> {
   // Retrieve and label top bugs.
   let newTopBugs: IssueNode[] = []
   if (TOP_BUGS) {
+    debug('Getting top bugs...')
     const bugIssues = issuesWithLabel(issues, BUG_LABEL)
     const currentTopBugs = issuesWithLabel(issues, TOP_BUG_LABEL)
     newTopBugs = getTopIssues(bugIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE)
     if (LABEL) {
+      debug('Labeling top bugs...')
       await labelTopIssues(
         owner,
         repo,
@@ -109,6 +115,7 @@ async function run(): Promise<void> {
   // Retrieve and label top features.
   let newTopFeatures: IssueNode[] = []
   if (TOP_FEATURES) {
+    debug('Getting top features...')
     const featureIssues = issuesWithLabel(issues, FEATURE_LABEL)
     const currentTopFeatures = issuesWithLabel(issues, TOP_FEATURE_LABEL)
     newTopFeatures = getTopIssues(
@@ -117,6 +124,7 @@ async function run(): Promise<void> {
       SUBTRACT_NEGATIVE
     )
     if (LABEL) {
+      debug('Labeling top features...')
       await labelTopIssues(
         owner,
         repo,
@@ -132,9 +140,11 @@ async function run(): Promise<void> {
   // Retrieve and label top PRs.
   let newTopPRs: IssueNode[] = []
   if (TOP_PULL_REQUEST) {
+    debug('Getting top PRs...')
     const currentTopPRs = issuesWithLabel(PRs, TOP_PULL_REQUEST_LABEL)
     newTopPRs = getTopIssues(PRs, TOP_LIST_SIZE, SUBTRACT_NEGATIVE)
     if (LABEL) {
+      debug('Labeling top PRs...')
       await labelTopIssues(
         owner,
         repo,
@@ -149,6 +159,7 @@ async function run(): Promise<void> {
 
   // Create top issues dashboard.
   if (DASHBOARD) {
+    debug('Creating dashboard markdown...')
     const dashboard_body = createDashboardMarkdown(
       newTopIssues,
       newTopBugs,
@@ -157,6 +168,7 @@ async function run(): Promise<void> {
       DASHBOARD_HEADER,
       HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : ''
     )
+    debug('Creating/updating dashboard issue...')
     await createDashboard(
       owner,
       repo,

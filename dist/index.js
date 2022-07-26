@@ -545,7 +545,9 @@ exports.octokit = (0, github_1.getOctokit)(GITHUB_TOKEN);
  */
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.debug)('Fetching repo info...');
         const { owner, repo } = (0, helpers_1.getRepoInfo)(github_1.context);
+        (0, core_1.debug)('Fetching open Issues and PRs...');
         const issues = yield (0, helpers_1.fetchOpenIssues)(owner, repo);
         const PRs = yield (0, helpers_1.fetchOpenPRs)(owner, repo);
         // Give warning if nothing to do.
@@ -556,44 +558,54 @@ function run() {
         // Retrieve and label top issues.
         let newTopIssues = [];
         if (TOP_ISSUES) {
+            (0, core_1.debug)('Gettting top issues...');
             const currentTopIssues = (0, helpers_1.issuesWithLabel)(issues, TOP_ISSUE_LABEL);
             newTopIssues = (0, helpers_1.getTopIssues)(issues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
             if (LABEL) {
+                (0, core_1.debug)('Labeling top issues...');
                 yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopIssues, newTopIssues, TOP_ISSUE_LABEL, TOP_ISSUE_LABEL_DESCRIPTION, TOP_ISSUE_LABEL_COLOUR);
             }
         }
         // Retrieve and label top bugs.
         let newTopBugs = [];
         if (TOP_BUGS) {
+            (0, core_1.debug)('Getting top bugs...');
             const bugIssues = (0, helpers_1.issuesWithLabel)(issues, BUG_LABEL);
             const currentTopBugs = (0, helpers_1.issuesWithLabel)(issues, TOP_BUG_LABEL);
             newTopBugs = (0, helpers_1.getTopIssues)(bugIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
             if (LABEL) {
+                (0, core_1.debug)('Labeling top bugs...');
                 yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopBugs, newTopBugs, TOP_BUG_LABEL, TOP_BUG_LABEL_DESCRIPTION, TOP_BUG_LABEL_COLOUR);
             }
         }
         // Retrieve and label top features.
         let newTopFeatures = [];
         if (TOP_FEATURES) {
+            (0, core_1.debug)('Getting top features...');
             const featureIssues = (0, helpers_1.issuesWithLabel)(issues, FEATURE_LABEL);
             const currentTopFeatures = (0, helpers_1.issuesWithLabel)(issues, TOP_FEATURE_LABEL);
             newTopFeatures = (0, helpers_1.getTopIssues)(featureIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
             if (LABEL) {
+                (0, core_1.debug)('Labeling top features...');
                 yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopFeatures, newTopFeatures, TOP_FEATURE_LABEL, TOP_FEATURE_LABEL_DESCRIPTION, TOP_FEATURE_LABEL_COLOUR);
             }
         }
         // Retrieve and label top PRs.
         let newTopPRs = [];
         if (TOP_PULL_REQUEST) {
+            (0, core_1.debug)('Getting top PRs...');
             const currentTopPRs = (0, helpers_1.issuesWithLabel)(PRs, TOP_PULL_REQUEST_LABEL);
             newTopPRs = (0, helpers_1.getTopIssues)(PRs, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
             if (LABEL) {
+                (0, core_1.debug)('Labeling top PRs...');
                 yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopPRs, newTopPRs, TOP_PULL_REQUEST_LABEL, TOP_PULL_REQUEST_LABEL_DESCRIPTION, TOP_PULL_REQUEST_LABEL_COLOUR);
             }
         }
         // Create top issues dashboard.
         if (DASHBOARD) {
+            (0, core_1.debug)('Creating dashboard markdown...');
             const dashboard_body = (0, helpers_1.createDashboardMarkdown)(newTopIssues, newTopBugs, newTopFeatures, newTopPRs, constants_1.DASHBOARD_HEADER, HIDE_DASHBOARD_FOOTER ? constants_1.DASHBOARD_FOOTER : '');
+            (0, core_1.debug)('Creating/updating dashboard issue...');
             yield (0, helpers_1.createDashboard)(owner, repo, issues, dashboard_body, DASHBOARD_TITLE, DASHBOARD_LABEL, DASHBOARD_LABEL_COLOUR, DASHBOARD_LABEL_DESCRIPTION);
         }
     });
