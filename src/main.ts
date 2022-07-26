@@ -44,7 +44,7 @@ const FEATURE_LABEL = getInput('feature_label')
 const TOP_FEATURE_LABEL = getInput('top_feature_label')
 const TOP_FEATURE_LABEL_DESCRIPTION = getInput('top_feature_label_description')
 const TOP_FEATURE_LABEL_COLOUR = getInput('top_feature_label_colour')
-const TOP_PULL_REQUEST = Boolean(getInput('top_pull_requests'))
+const TOP_PULL_REQUEST = Boolean(getInput('top_pull_request'))
 const TOP_PULL_REQUEST_LABEL = getInput('top_pull_request_label')
 const TOP_PULL_REQUEST_LABEL_DESCRIPTION = getInput(
   'top_pull_request_label_description'
