@@ -35,6 +35,9 @@ jobs:
         run: |
           npm run build
           npm run package
+      - name: Show git diff
+        run: |
+          git diff --text
 
       - name: Compare the expected and actual dist/ directories
         run: |
