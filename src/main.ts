@@ -1,7 +1,7 @@
 /**
  * @file Main action file.
  */
-import {getInput, info} from '@actions/core'
+import {getInput, info, setFailed} from '@actions/core'
 import {context, getOctokit} from '@actions/github'
 import dotenv from 'dotenv'
 import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
@@ -52,7 +52,7 @@ const TOP_PULL_REQUEST_LABEL_DESCRIPTION = getInput(
 const TOP_PULL_REQUEST_LABEL_COLOUR = getInput('top_pull_request_label_colour')
 
 // Create octokit client
-if (!GITHUB_TOKEN) throw Error('Github token is missing.')
+if (!GITHUB_TOKEN) setFailed('Github token is missing.')
 export const octokit = getOctokit(GITHUB_TOKEN)
 
 /**

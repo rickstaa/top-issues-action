@@ -78,7 +78,7 @@ export const getRepoInfo = (ctx: GithubContext): RepoInfo => {
       repo: ctx.repo.repo
     }
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof RequestError) {
       setFailed(
         `Repository and user information could not be retrieved: ${error.message}`
       )
@@ -140,7 +140,7 @@ export const fetchOpenIssues = async (
     } catch (error) {
       if (error instanceof RequestError) {
         setFailed(
-          `Could not retrieve top issues using GraphQl: ${error.message}.`
+          `Could not retrieve top issues using GraphQl: ${error.message}`
         )
       }
       throw error
@@ -199,9 +199,7 @@ export const fetchOpenPRs = async (
       endCursor = repository.open_prs.pageInfo.endCursor
     } catch (error) {
       if (error instanceof RequestError) {
-        throw Error(
-          `Could not retrieve top PRs using GraphQl: ${error.message}.`
-        )
+        setFailed(`Could not retrieve top PRs using GraphQl: ${error.message}`)
       }
       throw error
     }
@@ -314,19 +312,28 @@ export const initLabel = async (
  * @param label The label to add.
  * @returns
  */
-const addLabelToIssue = (
+const addLabelToIssue = async (
   owner: string,
   repo: string,
   issue: IssueNode,
   label: string
-): void => {
+): Promise<void> => {
   if (!issue.labels.nodes.some(lab => lab.name === label)) {
-    octokit.rest.issues.addLabels({
-      owner,
-      repo,
-      issue_number: issue.number,
-      labels: [label]
-    })
+    try {
+      await octokit.rest.issues.addLabels({
+        owner,
+        repo,
+        issue_number: issue.number,
+        labels: [label]
+      })
+    } catch (error) {
+      if (error instanceof RequestError) {
+        setFailed(
+          `Could not add label ${label} to issue ${issue.number}: ${error.message}`
+        )
+      }
+      throw error
+    }
   }
 }
 
@@ -379,12 +386,21 @@ const removeLabelFromIssue = (
   label: string
 ): void => {
   if (issue.labels.nodes.some(lab => lab.name === label)) {
-    octokit.rest.issues.removeLabel({
-      owner,
-      repo,
-      issue_number: issue.number,
-      name: label
-    })
+    try {
+      octokit.rest.issues.removeLabel({
+        owner,
+        repo,
+        issue_number: issue.number,
+        name: label
+      })
+    } catch (error) {
+      if (error instanceof RequestError) {
+        setFailed(
+          `Could not remove label ${label} from issue ${issue.number}: ${error.message}`
+        )
+      }
+      throw error
+    }
   }
 }
 
@@ -426,13 +442,22 @@ export const labelTopIssues = async (
   topIssueLabelDescription: string,
   topIssueLabelColour: string
 ): Promise<void> => {
-  await initLabel(
-    owner,
-    repo,
-    topIssueLabel,
-    topIssueLabelColour,
-    topIssueLabelDescription
-  )
+  try {
+    await initLabel(
+      owner,
+      repo,
+      topIssueLabel,
+      topIssueLabelColour,
+      topIssueLabelDescription
+    )
+  } catch (error) {
+    if (error instanceof RequestError) {
+      setFailed(
+        `Something went wrong while initializing the ${topIssueLabel} label: ${error.message}`
+      )
+    }
+    throw error
+  }
   labelIssues(owner, repo, newTopIssues, topIssueLabel)
   const topIssuesToPrune = getIssuesDifference(currentTopIssues, newTopIssues)
   removeLabelFromIssues(owner, repo, topIssuesToPrune, topIssueLabel)
@@ -508,27 +533,52 @@ export const createDashboard = async (
   labelColour: string,
   labelDescription: string
 ): Promise<void> => {
-  await initLabel(owner, repo, label, labelColour, labelDescription)
+  try {
+    await initLabel(owner, repo, label, labelColour, labelDescription)
+  } catch (error) {
+    if (error instanceof RequestError) {
+      setFailed(
+        `Something went wrong while initializing the ${label} label: ${error.message}`
+      )
+    }
+    throw error
+  }
   let dashboardIssue = issuesWithLabel(issues, label)
   if (dashboardIssue.length === 0) {
     dashboardIssue = issues.filter(issue => issue.title === title)
   }
   if (dashboardIssue.length > 0) {
-    await octokit.rest.issues.update({
-      owner,
-      repo,
-      issue_number: dashboardIssue[0].number,
-      title,
-      body: dashboard_body,
-      labels: [label]
-    })
+    try {
+      await octokit.rest.issues.update({
+        owner,
+        repo,
+        issue_number: dashboardIssue[0].number,
+        title,
+        body: dashboard_body,
+        labels: [label]
+      })
+    } catch (error) {
+      if (error instanceof RequestError) {
+        setFailed(
+          `Could not update issue ${dashboardIssue[0].number}: ${error.message}`
+        )
+      }
+      throw error
+    }
   } else {
-    await octokit.rest.issues.create({
-      owner,
-      repo,
-      title,
-      body: dashboard_body,
-      labels: [label]
-    })
+    try {
+      await octokit.rest.issues.create({
+        owner,
+        repo,
+        title,
+        body: dashboard_body,
+        labels: [label]
+      })
+    } catch (error) {
+      if (error instanceof RequestError) {
+        setFailed(`Could not create issue ${title}: ${error.message}`)
+      }
+      throw error
+    }
   }
 }
