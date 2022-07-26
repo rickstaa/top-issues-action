@@ -1,8 +1,8 @@
 /**
  * @file Main action file.
  */
-import {debug, getInput, info, setFailed} from '@actions/core'
-import {context, getOctokit} from '@actions/github'
+import {debug, getInput, info} from '@actions/core'
+import {context} from '@actions/github'
 import dotenv from 'dotenv'
 import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
 import {
@@ -20,7 +20,6 @@ import type {IssueNode} from './types'
 dotenv.config()
 
 // == Get action inputs ==
-const GITHUB_TOKEN = getInput('github_token')
 const TOP_LIST_SIZE = parseInt(getInput('top_list_size'))
 const SUBTRACT_NEGATIVE = Boolean(getInput('subtract_negative'))
 const LABEL = Boolean(getInput('label'))
@@ -50,10 +49,6 @@ const TOP_PULL_REQUEST_LABEL_DESCRIPTION = getInput(
   'top_pull_request_label_description'
 )
 const TOP_PULL_REQUEST_LABEL_COLOUR = getInput('top_pull_request_label_colour')
-
-// Create octokit client
-if (!GITHUB_TOKEN) setFailed('Github token is missing.')
-export const octokit = getOctokit(GITHUB_TOKEN)
 
 /**
  * Main function.

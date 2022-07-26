@@ -4,7 +4,7 @@ author: 'Rick Staa'
 inputs:
   # General inputs.
   github_token:
-    description: "Token used for authorizing interactions with the repository.  Typically the `GITHUB_TOKEN` secret."
+    description: 'Token used for authorizing interactions with the repository.  Typically the `GITHUB_TOKEN` secret.'
     required: true
     default: ${{ github.token }}
   top_list_size:
@@ -39,7 +39,7 @@ inputs:
   dashboard_label_colour:
     required: false
     description: 'The colour used for the top issues dashboard label.'
-    default: '#EED801'
+    default: '#006B75'
   hide_dashboard_footer:
     required: false
     description: 'Hide dashboard footer.'
@@ -121,8 +121,8 @@ inputs:
     description: 'The colour used for the top pull request label.'
     default: '#41A285'
 branding:
-  color: "blue"
-  icon: "arrow-up"
+  color: 'blue'
+  icon: 'arrow-up'
 runs:
   using: 'node16'
   main: 'dist/index.js'

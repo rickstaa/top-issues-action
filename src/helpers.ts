@@ -4,8 +4,8 @@
 import {setFailed} from '@actions/core'
 import {context} from '@actions/github'
 import {RequestError} from '@octokit/request-error'
-import {octokit} from './main'
 import type {IssueNode} from './types'
+import {octokit} from './utils'
 
 type GithubContext = typeof context
 
@@ -235,7 +235,7 @@ export const getTopIssues = (
 ): IssueNode[] => {
   issues = issues.filter(issue =>
     subtractNegative
-      ? issue.positive.totalCount - issue.negative.totalCount
+      ? issue.positive.totalCount + issue.negative.totalCount > 0
       : issue.positive.totalCount > 0
   ) // Remove issues with no reactions
   issues = issues.sort((a: IssueNode, b: IssueNode) => {
@@ -292,7 +292,7 @@ export const initLabel = async (
             owner,
             repo,
             name: label,
-            color: labelColour,
+            color: topIssueLabelColourBare,
             description: labelDescription
           })
         }
@@ -357,18 +357,24 @@ const labelIssues = (
 }
 
 /**
- * Get the difference between to lists of issues.
+ * Get the objects that are in the first but not in the second issue list.
  * @param issuesOne First list of issues.
  * @param issuesTwo Second list of issues.
  * @returns The difference between the two lists.
  */
-const getIssuesDifference = (
+export const getIssuesDifference = (
   issuesOne: IssueNode[],
   issuesTwo: IssueNode[]
 ): IssueNode[] => {
-  return issuesOne.filter(
-    ({number: id1}) => !issuesTwo.some(({number: id2}) => id2 === id1)
-  )
+  if (issuesOne.length === 0) {
+    return issuesTwo
+  } else if (issuesTwo.length === 0) {
+    return issuesOne
+  } else {
+    return issuesOne.filter(
+      ({number: id1}) => !issuesTwo.some(({number: id2}) => id1 === id2)
+    )
+  }
 }
 
 /**
@@ -482,33 +488,37 @@ export const createDashboardMarkdown = (
   footer: string
 ): string => {
   let dashboard_body = `${header}`
+  let dashboard_issues_body = ``
   if (topIssues.length > 0) {
-    dashboard_body += `\n\n## Top issues\n`
-    dashboard_body += `\n${topIssues
+    dashboard_issues_body += `\n\n## Top issues\n`
+    dashboard_issues_body += `\n${topIssues
       .map((issue, idx) => `${idx + 1}. #${issue.number}`)
       .join('\n')}`
   }
   if (topBugs.length > 0) {
-    dashboard_body += `\n\n## Top bugs\n`
-    dashboard_body += `\n${topBugs
+    dashboard_issues_body += `\n\n## Top bugs\n`
+    dashboard_issues_body += `\n${topBugs
       .map((bug, idx) => `${idx + 1}. #${bug.number}`)
       .join('\n')}`
   }
   if (topFeatures.length > 0) {
-    dashboard_body += `\n\n## Top feature requests\n`
-    dashboard_body += `\n${topFeatures
+    dashboard_issues_body += `\n\n## Top feature requests\n`
+    dashboard_issues_body += `\n${topFeatures
       .map((feature, idx) => `${idx + 1}. #${feature.number}`)
       .join('\n')}`
   }
   if (topPRs.length > 0) {
-    dashboard_body += `\n\n## Top PRs\n`
-    dashboard_body += `\n${topPRs
+    dashboard_issues_body += `\n\n## Top PRs\n`
+    dashboard_issues_body += `\n${topPRs
       .map((PR, idx) => `${idx + 1}. #${PR.number}`)
       .join('\n')}`
   }
-  if (footer) {
-    dashboard_body += `\n\n${footer}`
+  if (dashboard_issues_body) {
+    dashboard_body += `${dashboard_issues_body}`
+  } else {
+    dashboard_body += `\n\n## Top issues\n\n> Could not find any top issues :zzz:.`
   }
+  if (footer) dashboard_body += `\n\n${footer}`
   return dashboard_body
 }
 
