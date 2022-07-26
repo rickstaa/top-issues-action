@@ -279,7 +279,7 @@ const addLabelToIssue = (owner, repo, issue, label) => __awaiter(void 0, void 0,
         }
         catch (error) {
             if (error instanceof request_error_1.RequestError) {
-                (0, core_1.setFailed)(`Could not add label ${label} to issue ${issue.number}: ${error.message}`);
+                (0, core_1.setFailed)(`Could not add label '${label}' to issue '${issue.number}': ${error.message}`);
             }
             throw error;
         }
@@ -327,7 +327,7 @@ const removeLabelFromIssue = (owner, repo, issue, label) => {
         }
         catch (error) {
             if (error instanceof request_error_1.RequestError) {
-                (0, core_1.setFailed)(`Could not remove label ${label} from issue ${issue.number}: ${error.message}`);
+                (0, core_1.setFailed)(`Could not remove label '${label}' from issue '${issue.number}': ${error.message}`);
             }
             throw error;
         }
@@ -362,7 +362,7 @@ const labelTopIssues = (owner, repo, currentTopIssues, newTopIssues, topIssueLab
     }
     catch (error) {
         if (error instanceof request_error_1.RequestError) {
-            (0, core_1.setFailed)(`Something went wrong while initializing the ${topIssueLabel} label: ${error.message}`);
+            (0, core_1.setFailed)(`Something went wrong while initializing the issue '${topIssueLabel}' label: ${error.message}`);
         }
         throw error;
     }
@@ -430,7 +430,7 @@ const createDashboard = (owner, repo, issues, dashboard_body, title, label, labe
     }
     catch (error) {
         if (error instanceof request_error_1.RequestError) {
-            (0, core_1.setFailed)(`Something went wrong while initializing the ${label} label: ${error.message}`);
+            (0, core_1.setFailed)(`Something went wrong while initializing the dashboard '${label}' label: ${error.message}`);
         }
         throw error;
     }
@@ -451,7 +451,7 @@ const createDashboard = (owner, repo, issues, dashboard_body, title, label, labe
         }
         catch (error) {
             if (error instanceof request_error_1.RequestError) {
-                (0, core_1.setFailed)(`Could not update issue ${dashboardIssue[0].number}: ${error.message}`);
+                (0, core_1.setFailed)(`Could not update issue '${dashboardIssue[0].number}': ${error.message}`);
             }
             throw error;
         }
@@ -468,7 +468,7 @@ const createDashboard = (owner, repo, issues, dashboard_body, title, label, labe
         }
         catch (error) {
             if (error instanceof request_error_1.RequestError) {
-                (0, core_1.setFailed)(`Could not create issue ${title}: ${error.message}`);
+                (0, core_1.setFailed)(`Could not create issue '${title}': ${error.message}`);
             }
             throw error;
         }
