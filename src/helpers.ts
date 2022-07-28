@@ -67,6 +67,13 @@ interface PRsResponse {
 // == Methods ==
 
 /**
+ * Convert a string to a boolean.
+ */
+export const str2bool = (str: string): boolean => {
+  return str.toLowerCase() === 'true'
+}
+
+/**
  * Retrieve information about the repository that ran the action.
  * @param context Action context.
  * @returns Repository information.

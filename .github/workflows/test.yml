@@ -22,6 +22,7 @@ jobs:
       - uses: ./
         with:
           github_token: ${{ secrets.github_token }}
+          dry_run: true
           label: true
           dashboard: true
           top_issues: true
