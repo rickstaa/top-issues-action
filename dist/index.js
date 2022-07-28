@@ -36,7 +36,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createDashboard = exports.createDashboardMarkdown = exports.labelTopIssues = exports.getIssuesDifference = exports.initLabel = exports.getTopIssues = exports.issuesWithLabel = exports.fetchOpenPRs = exports.fetchOpenIssues = exports.getRepoInfo = void 0;
+exports.createDashboard = exports.createDashboardMarkdown = exports.labelTopIssues = exports.getIssuesDifference = exports.initLabel = exports.getTopIssues = exports.issuesWithLabel = exports.fetchOpenPRs = exports.fetchOpenIssues = exports.getRepoInfo = exports.str2bool = void 0;
 /**
  * @file Contains action helper functions.
  */
@@ -44,6 +44,13 @@ const core_1 = __nccwpck_require__(2186);
 const request_error_1 = __nccwpck_require__(537);
 const utils_1 = __nccwpck_require__(918);
 // == Methods ==
+/**
+ * Convert a string to a boolean.
+ */
+const str2bool = (str) => {
+    return str.toLowerCase() === 'true';
+};
+exports.str2bool = str2bool;
 /**
  * Retrieve information about the repository that ran the action.
  * @param context Action context.
@@ -515,32 +522,38 @@ const helpers_1 = __nccwpck_require__(5008);
 dotenv_1.default.config();
 // == Get action inputs ==
 const TOP_LIST_SIZE = parseInt((0, core_1.getInput)('top_list_size'));
-const SUBTRACT_NEGATIVE = Boolean((0, core_1.getInput)('subtract_negative'));
-const LABEL = Boolean((0, core_1.getInput)('label'));
-const DASHBOARD = Boolean((0, core_1.getInput)('dashboard'));
+const SUBTRACT_NEGATIVE = (0, helpers_1.str2bool)((0, core_1.getInput)('subtract_negative'));
+const DRY_RUN = (0, helpers_1.str2bool)((0, core_1.getInput)('dry_run'));
+const LABEL = (0, helpers_1.str2bool)((0, core_1.getInput)('label'));
+const DASHBOARD = (0, helpers_1.str2bool)((0, core_1.getInput)('dashboard'));
 const DASHBOARD_TITLE = (0, core_1.getInput)('dashboard_title');
 const DASHBOARD_LABEL = (0, core_1.getInput)('dashboard_label');
 const DASHBOARD_LABEL_DESCRIPTION = (0, core_1.getInput)('dashboard_label_description');
 const DASHBOARD_LABEL_COLOUR = (0, core_1.getInput)('dashboard_label_colour');
-const HIDE_DASHBOARD_FOOTER = Boolean((0, core_1.getInput)('hide_dashboard_footer'));
-const TOP_ISSUES = Boolean((0, core_1.getInput)('top_issues'));
+const HIDE_DASHBOARD_FOOTER = (0, helpers_1.str2bool)((0, core_1.getInput)('hide_dashboard_footer'));
+const TOP_ISSUES = (0, helpers_1.str2bool)((0, core_1.getInput)('top_issues'));
 const TOP_ISSUE_LABEL = (0, core_1.getInput)('top_issue_label');
 const TOP_ISSUE_LABEL_DESCRIPTION = (0, core_1.getInput)('top_issue_label_description');
 const TOP_ISSUE_LABEL_COLOUR = (0, core_1.getInput)('top_issue_label_colour');
-const TOP_BUGS = Boolean((0, core_1.getInput)('top_bugs'));
+const TOP_BUGS = (0, helpers_1.str2bool)((0, core_1.getInput)('top_bugs'));
 const BUG_LABEL = (0, core_1.getInput)('bug_label');
 const TOP_BUG_LABEL = (0, core_1.getInput)('top_bug_label');
 const TOP_BUG_LABEL_DESCRIPTION = (0, core_1.getInput)('top_bug_label_description');
 const TOP_BUG_LABEL_COLOUR = (0, core_1.getInput)('top_bug_label_colour');
-const TOP_FEATURES = Boolean((0, core_1.getInput)('top_features'));
+const TOP_FEATURES = (0, helpers_1.str2bool)((0, core_1.getInput)('top_features'));
 const FEATURE_LABEL = (0, core_1.getInput)('feature_label');
 const TOP_FEATURE_LABEL = (0, core_1.getInput)('top_feature_label');
 const TOP_FEATURE_LABEL_DESCRIPTION = (0, core_1.getInput)('top_feature_label_description');
 const TOP_FEATURE_LABEL_COLOUR = (0, core_1.getInput)('top_feature_label_colour');
-const TOP_PULL_REQUEST = Boolean((0, core_1.getInput)('top_pull_request'));
+const TOP_PULL_REQUEST = (0, helpers_1.str2bool)((0, core_1.getInput)('top_pull_request'));
 const TOP_PULL_REQUEST_LABEL = (0, core_1.getInput)('top_pull_request_label');
 const TOP_PULL_REQUEST_LABEL_DESCRIPTION = (0, core_1.getInput)('top_pull_request_label_description');
 const TOP_PULL_REQUEST_LABEL_COLOUR = (0, core_1.getInput)('top_pull_request_label_colour');
+// Enable debug logging if dry run is enabled
+if (DRY_RUN) {
+    (0, core_1.info)('DRY_RUN is enabled, enabling debug logging');
+    process.env['ACTIONS_STEP_DEBUG'] = 'true';
+}
 /**
  * Main function.
  */
@@ -548,9 +561,12 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.debug)('Fetching repo info...');
         const { owner, repo } = (0, helpers_1.getRepoInfo)(github_1.context);
+        (0, core_1.debug)(`Repo: ${repo}, Owner: ${owner}`);
         (0, core_1.debug)('Fetching open Issues and PRs...');
         const issues = yield (0, helpers_1.fetchOpenIssues)(owner, repo);
+        (0, core_1.debug)(`Found ${issues.length} open issues.`);
         const PRs = yield (0, helpers_1.fetchOpenPRs)(owner, repo);
+        (0, core_1.debug)(`Found ${PRs.length} open PRs.`);
         // Give warning if nothing to do.
         if ((!TOP_ISSUES && !TOP_BUGS && !TOP_FEATURES) || (!LABEL && !DASHBOARD)) {
             (0, core_1.info)('Nothing to do 💤.');
@@ -559,12 +575,19 @@ function run() {
         // Retrieve and label top issues.
         let newTopIssues = [];
         if (TOP_ISSUES) {
-            (0, core_1.debug)('Gettting top issues...');
+            (0, core_1.debug)('Getting top issues...');
             const currentTopIssues = (0, helpers_1.issuesWithLabel)(issues, TOP_ISSUE_LABEL);
+            (0, core_1.debug)(`Found ${currentTopIssues.length} top issues.`);
             newTopIssues = (0, helpers_1.getTopIssues)(issues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
+            (0, core_1.debug)(`Found ${newTopIssues.length} new top issues.`);
             if (LABEL) {
                 (0, core_1.debug)('Labeling top issues...');
-                yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopIssues, newTopIssues, TOP_ISSUE_LABEL, TOP_ISSUE_LABEL_DESCRIPTION, TOP_ISSUE_LABEL_COLOUR);
+                if (!DRY_RUN) {
+                    yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopIssues, newTopIssues, TOP_ISSUE_LABEL, TOP_ISSUE_LABEL_DESCRIPTION, TOP_ISSUE_LABEL_COLOUR);
+                }
+                else {
+                    (0, core_1.info)('DRY_RUN is enabled, skipping labeling top issues.');
+                }
             }
         }
         // Retrieve and label top bugs.
@@ -572,11 +595,19 @@ function run() {
         if (TOP_BUGS) {
             (0, core_1.debug)('Getting top bugs...');
             const bugIssues = (0, helpers_1.issuesWithLabel)(issues, BUG_LABEL);
+            (0, core_1.debug)(`Found ${bugIssues.length} bugs.`);
             const currentTopBugs = (0, helpers_1.issuesWithLabel)(issues, TOP_BUG_LABEL);
+            (0, core_1.debug)(`Found ${currentTopBugs.length} top bugs.`);
             newTopBugs = (0, helpers_1.getTopIssues)(bugIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
+            (0, core_1.debug)(`Found ${newTopBugs.length} new top bugs.`);
             if (LABEL) {
                 (0, core_1.debug)('Labeling top bugs...');
-                yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopBugs, newTopBugs, TOP_BUG_LABEL, TOP_BUG_LABEL_DESCRIPTION, TOP_BUG_LABEL_COLOUR);
+                if (!DRY_RUN) {
+                    yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopBugs, newTopBugs, TOP_BUG_LABEL, TOP_BUG_LABEL_DESCRIPTION, TOP_BUG_LABEL_COLOUR);
+                }
+                else {
+                    (0, core_1.info)('DRY_RUN is enabled, skipping labeling top bugs.');
+                }
             }
         }
         // Retrieve and label top features.
@@ -584,11 +615,18 @@ function run() {
         if (TOP_FEATURES) {
             (0, core_1.debug)('Getting top features...');
             const featureIssues = (0, helpers_1.issuesWithLabel)(issues, FEATURE_LABEL);
+            (0, core_1.debug)(`Found ${featureIssues.length} features.`);
             const currentTopFeatures = (0, helpers_1.issuesWithLabel)(issues, TOP_FEATURE_LABEL);
+            (0, core_1.debug)(`Found ${currentTopFeatures.length} top features.`);
             newTopFeatures = (0, helpers_1.getTopIssues)(featureIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
             if (LABEL) {
                 (0, core_1.debug)('Labeling top features...');
-                yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopFeatures, newTopFeatures, TOP_FEATURE_LABEL, TOP_FEATURE_LABEL_DESCRIPTION, TOP_FEATURE_LABEL_COLOUR);
+                if (!DRY_RUN) {
+                    yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopFeatures, newTopFeatures, TOP_FEATURE_LABEL, TOP_FEATURE_LABEL_DESCRIPTION, TOP_FEATURE_LABEL_COLOUR);
+                }
+                else {
+                    (0, core_1.info)('DRY_RUN is enabled, skipping labeling top features.');
+                }
             }
         }
         // Retrieve and label top PRs.
@@ -596,18 +634,31 @@ function run() {
         if (TOP_PULL_REQUEST) {
             (0, core_1.debug)('Getting top PRs...');
             const currentTopPRs = (0, helpers_1.issuesWithLabel)(PRs, TOP_PULL_REQUEST_LABEL);
+            (0, core_1.debug)(`Found ${currentTopPRs.length} top PRs.`);
             newTopPRs = (0, helpers_1.getTopIssues)(PRs, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
+            (0, core_1.debug)(`Found ${newTopPRs.length} new top PRs.`);
             if (LABEL) {
                 (0, core_1.debug)('Labeling top PRs...');
-                yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopPRs, newTopPRs, TOP_PULL_REQUEST_LABEL, TOP_PULL_REQUEST_LABEL_DESCRIPTION, TOP_PULL_REQUEST_LABEL_COLOUR);
+                if (!DRY_RUN) {
+                    yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopPRs, newTopPRs, TOP_PULL_REQUEST_LABEL, TOP_PULL_REQUEST_LABEL_DESCRIPTION, TOP_PULL_REQUEST_LABEL_COLOUR);
+                }
+                else {
+                    (0, core_1.info)('DRY_RUN is enabled, skipping labeling top PRs.');
+                }
             }
         }
         // Create top issues dashboard.
         if (DASHBOARD) {
             (0, core_1.debug)('Creating dashboard markdown...');
             const dashboard_body = (0, helpers_1.createDashboardMarkdown)(newTopIssues, newTopBugs, newTopFeatures, newTopPRs, constants_1.DASHBOARD_HEADER, HIDE_DASHBOARD_FOOTER ? constants_1.DASHBOARD_FOOTER : '');
+            (0, core_1.debug)(`Dashboard body: ${dashboard_body}`);
             (0, core_1.debug)('Creating/updating dashboard issue...');
-            yield (0, helpers_1.createDashboard)(owner, repo, issues, dashboard_body, DASHBOARD_TITLE, DASHBOARD_LABEL, DASHBOARD_LABEL_COLOUR, DASHBOARD_LABEL_DESCRIPTION);
+            if (!DRY_RUN) {
+                yield (0, helpers_1.createDashboard)(owner, repo, issues, dashboard_body, DASHBOARD_TITLE, DASHBOARD_LABEL, DASHBOARD_LABEL_COLOUR, DASHBOARD_LABEL_DESCRIPTION);
+            }
+            else {
+                (0, core_1.info)('DRY_RUN is enabled, skipping creating/updating dashboard issue.');
+            }
         }
     });
 }
