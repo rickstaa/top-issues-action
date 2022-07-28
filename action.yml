@@ -15,6 +15,10 @@ inputs:
     required: false
     description: 'Subtract negative from positive reactions to get the total count.'
     default: 'true'
+  dry_run:
+    required: false
+    description: 'Run the action without actually creating the labels and dashboard.'
+    default: 'false'
   label:
     required: false
     description: 'Label top issues.'

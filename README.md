@@ -55,6 +55,7 @@ Various inputs are defined in [action.yml](action.yml) to let you configure the 
 | `github_token`                       | Token used for authorizing interactions with the repository. Typically the `GITHUB_TOKEN` secret. | N/A                         |
 | `top_list_size`                      | The number of top issues to show.                                                                 | `10`                        |
 | `subtract_negative`                  | Subtract negative from positive reactions to get the total count.                                 | `true`                      |
+| `dry_run`                            | Run the action without actually creating the labels and dashboard.                                | `false`                     |
 | `label`                              | Label top issues.                                                                                 | `false`                     |
 | `dashboard`                          | Create a dashboard that displays the top issues and pull requests.                                | `true`                      |
 | `dashboard_title`                    | Dashboard title.                                                                                  | `Top Issues  Dashboard`     |
