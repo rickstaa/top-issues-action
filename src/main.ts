@@ -1,7 +1,7 @@
 /**
  * @file Main action file.
  */
-import {debug, getInput, info} from '@actions/core'
+import {debug, getInput, info, setCommandEcho} from '@actions/core'
 import {context} from '@actions/github'
 import dotenv from 'dotenv'
 import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
@@ -55,7 +55,7 @@ const TOP_PULL_REQUEST_LABEL_COLOUR = getInput('top_pull_request_label_colour')
 // Enable debug logging if dry run is enabled
 if (DRY_RUN) {
   info('DRY_RUN is enabled, enabling debug logging')
-  process.env['ACTIONS_STEP_DEBUG'] = 'true'
+  setCommandEcho(true)
 }
 
 /**
