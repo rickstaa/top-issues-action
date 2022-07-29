@@ -74,6 +74,17 @@ export const str2bool = (str: string): boolean => {
 }
 
 /**
+ * Convert array to human readable comma separated string.
+ * @param arr Input array.
+ * @returns Human readable comma separated string.
+ */
+export const array2str = (arr: string[]): string => {
+  if (arr.length === 0) {
+    return ''
+  }
+  return `${arr.slice(0, arr.length - 1).join(', ')} and ${arr[arr.length - 1]}`
+}
+/**
  * Retrieve information about the repository that ran the action.
  * @param context Action context.
  * @returns Repository information.
