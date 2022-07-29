@@ -36,7 +36,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createDashboard = exports.createDashboardMarkdown = exports.labelTopIssues = exports.getIssuesDifference = exports.initLabel = exports.getTopIssues = exports.issuesWithLabel = exports.fetchOpenPRs = exports.fetchOpenIssues = exports.getRepoInfo = exports.str2bool = void 0;
+exports.createDashboard = exports.createDashboardMarkdown = exports.labelTopIssues = exports.getIssuesDifference = exports.initLabel = exports.getTopIssues = exports.issuesWithLabel = exports.fetchOpenPRs = exports.fetchOpenIssues = exports.getRepoInfo = exports.array2str = exports.str2bool = void 0;
 /**
  * @file Contains action helper functions.
  */
@@ -51,6 +51,18 @@ const str2bool = (str) => {
     return str.toLowerCase() === 'true';
 };
 exports.str2bool = str2bool;
+/**
+ * Convert array to human readable comma separated string.
+ * @param arr Input array.
+ * @returns Human readable comma separated string.
+ */
+const array2str = (arr) => {
+    if (arr.length === 0) {
+        return '';
+    }
+    return `${arr.slice(0, arr.length - 1).join(', ')} and ${arr[arr.length - 1]}`;
+};
+exports.array2str = array2str;
 /**
  * Retrieve information about the repository that ran the action.
  * @param context Action context.
@@ -549,11 +561,6 @@ const TOP_PULL_REQUEST = (0, helpers_1.str2bool)((0, core_1.getInput)('top_pull_
 const TOP_PULL_REQUEST_LABEL = (0, core_1.getInput)('top_pull_request_label');
 const TOP_PULL_REQUEST_LABEL_DESCRIPTION = (0, core_1.getInput)('top_pull_request_label_description');
 const TOP_PULL_REQUEST_LABEL_COLOUR = (0, core_1.getInput)('top_pull_request_label_colour');
-// Enable debug logging if dry run is enabled
-if (DRY_RUN) {
-    (0, core_1.info)('DRY_RUN is enabled, enabling debug logging');
-    process.env['ACTIONS_STEP_DEBUG'] = 'true';
-}
 /**
  * Main function.
  */
@@ -561,10 +568,11 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.debug)('Fetching repo info...');
         const { owner, repo } = (0, helpers_1.getRepoInfo)(github_1.context);
-        (0, core_1.debug)(`Repo: ${repo}, Owner: ${owner}`);
-        (0, core_1.debug)('Fetching open Issues and PRs...');
+        (0, core_1.debug)(`Repo: ${repo}, Owner: ${owner}.`);
+        (0, core_1.debug)('Fetching open Issues...');
         const issues = yield (0, helpers_1.fetchOpenIssues)(owner, repo);
         (0, core_1.debug)(`Found ${issues.length} open issues.`);
+        (0, core_1.debug)('Fetching open PRs...');
         const PRs = yield (0, helpers_1.fetchOpenPRs)(owner, repo);
         (0, core_1.debug)(`Found ${PRs.length} open PRs.`);
         // Give warning if nothing to do.
@@ -575,75 +583,89 @@ function run() {
         // Retrieve and label top issues.
         let newTopIssues = [];
         if (TOP_ISSUES) {
-            (0, core_1.debug)('Getting top issues...');
-            const currentTopIssues = (0, helpers_1.issuesWithLabel)(issues, TOP_ISSUE_LABEL);
-            (0, core_1.debug)(`Found ${currentTopIssues.length} top issues.`);
+            (0, core_1.debug)('Getting old top issues...');
+            const oldTopIssues = (0, helpers_1.issuesWithLabel)(issues, TOP_ISSUE_LABEL);
+            (0, core_1.debug)(`Found ${oldTopIssues.length} old top issues.`);
+            (0, core_1.debug)(`Old top issues: ${(0, helpers_1.array2str)(oldTopIssues.map(issue => issue.number.toString()))}.`);
+            (0, core_1.debug)(`Getting new top issues...`);
             newTopIssues = (0, helpers_1.getTopIssues)(issues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
             (0, core_1.debug)(`Found ${newTopIssues.length} new top issues.`);
+            (0, core_1.debug)(`New top issues: ${(0, helpers_1.array2str)(newTopIssues.map(issue => issue.number.toString()))}.`);
             if (LABEL) {
                 (0, core_1.debug)('Labeling top issues...');
                 if (!DRY_RUN) {
-                    yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopIssues, newTopIssues, TOP_ISSUE_LABEL, TOP_ISSUE_LABEL_DESCRIPTION, TOP_ISSUE_LABEL_COLOUR);
+                    yield (0, helpers_1.labelTopIssues)(owner, repo, oldTopIssues, newTopIssues, TOP_ISSUE_LABEL, TOP_ISSUE_LABEL_DESCRIPTION, TOP_ISSUE_LABEL_COLOUR);
                 }
                 else {
-                    (0, core_1.info)('DRY_RUN is enabled, skipping labeling top issues.');
+                    (0, core_1.warning)('DRY_RUN is enabled, skipping labeling of top issues.');
                 }
             }
         }
         // Retrieve and label top bugs.
         let newTopBugs = [];
         if (TOP_BUGS) {
-            (0, core_1.debug)('Getting top bugs...');
+            (0, core_1.debug)('Getting bugs...');
             const bugIssues = (0, helpers_1.issuesWithLabel)(issues, BUG_LABEL);
             (0, core_1.debug)(`Found ${bugIssues.length} bugs.`);
-            const currentTopBugs = (0, helpers_1.issuesWithLabel)(issues, TOP_BUG_LABEL);
-            (0, core_1.debug)(`Found ${currentTopBugs.length} top bugs.`);
+            (0, core_1.debug)(`Getting old top bugs...`);
+            const oldTopBugs = (0, helpers_1.issuesWithLabel)(issues, TOP_BUG_LABEL);
+            (0, core_1.debug)(`Found ${oldTopBugs.length} old top bugs.`);
+            (0, core_1.debug)(`Old top bugs: ${(0, helpers_1.array2str)(oldTopBugs.map(bug => bug.number.toString()))}.`);
+            (0, core_1.debug)(`Getting new top bugs...`);
             newTopBugs = (0, helpers_1.getTopIssues)(bugIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
             (0, core_1.debug)(`Found ${newTopBugs.length} new top bugs.`);
+            (0, core_1.debug)(`New top bugs: ${(0, helpers_1.array2str)(newTopBugs.map(bug => bug.number.toString()))}.`);
             if (LABEL) {
                 (0, core_1.debug)('Labeling top bugs...');
                 if (!DRY_RUN) {
-                    yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopBugs, newTopBugs, TOP_BUG_LABEL, TOP_BUG_LABEL_DESCRIPTION, TOP_BUG_LABEL_COLOUR);
+                    yield (0, helpers_1.labelTopIssues)(owner, repo, oldTopBugs, newTopBugs, TOP_BUG_LABEL, TOP_BUG_LABEL_DESCRIPTION, TOP_BUG_LABEL_COLOUR);
                 }
                 else {
-                    (0, core_1.info)('DRY_RUN is enabled, skipping labeling top bugs.');
+                    (0, core_1.warning)('DRY_RUN is enabled, skipping labeling of top bugs.');
                 }
             }
         }
         // Retrieve and label top features.
         let newTopFeatures = [];
         if (TOP_FEATURES) {
-            (0, core_1.debug)('Getting top features...');
+            (0, core_1.debug)('Getting feature requests...');
             const featureIssues = (0, helpers_1.issuesWithLabel)(issues, FEATURE_LABEL);
-            (0, core_1.debug)(`Found ${featureIssues.length} features.`);
-            const currentTopFeatures = (0, helpers_1.issuesWithLabel)(issues, TOP_FEATURE_LABEL);
-            (0, core_1.debug)(`Found ${currentTopFeatures.length} top features.`);
+            (0, core_1.debug)(`Found ${featureIssues.length} feature requests.`);
+            (0, core_1.debug)(`Getting old top feature requests...`);
+            const oldTopFeatures = (0, helpers_1.issuesWithLabel)(issues, TOP_FEATURE_LABEL);
+            (0, core_1.debug)(`Found ${oldTopFeatures.length} old top feature requests.`);
+            (0, core_1.debug)(`Old top feature requests: ${(0, helpers_1.array2str)(oldTopFeatures.map(feature => feature.number.toString()))}.`);
+            (0, core_1.debug)(`Getting new top feature requests...`);
             newTopFeatures = (0, helpers_1.getTopIssues)(featureIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
+            (0, core_1.debug)(`Found ${newTopFeatures.length} new top feature requests.`);
+            (0, core_1.debug)(`New top feature requests: ${(0, helpers_1.array2str)(newTopFeatures.map(feature => feature.number.toString()))}.`);
             if (LABEL) {
-                (0, core_1.debug)('Labeling top features...');
+                (0, core_1.debug)('Labeling top feature requests...');
                 if (!DRY_RUN) {
-                    yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopFeatures, newTopFeatures, TOP_FEATURE_LABEL, TOP_FEATURE_LABEL_DESCRIPTION, TOP_FEATURE_LABEL_COLOUR);
+                    yield (0, helpers_1.labelTopIssues)(owner, repo, oldTopFeatures, newTopFeatures, TOP_FEATURE_LABEL, TOP_FEATURE_LABEL_DESCRIPTION, TOP_FEATURE_LABEL_COLOUR);
                 }
                 else {
-                    (0, core_1.info)('DRY_RUN is enabled, skipping labeling top features.');
+                    (0, core_1.warning)('DRY_RUN is enabled, skipping labeling of top feature requests.');
                 }
             }
         }
         // Retrieve and label top PRs.
         let newTopPRs = [];
         if (TOP_PULL_REQUEST) {
-            (0, core_1.debug)('Getting top PRs...');
-            const currentTopPRs = (0, helpers_1.issuesWithLabel)(PRs, TOP_PULL_REQUEST_LABEL);
-            (0, core_1.debug)(`Found ${currentTopPRs.length} top PRs.`);
+            (0, core_1.debug)('Getting old top PRs...');
+            const oldTopPRs = (0, helpers_1.issuesWithLabel)(PRs, TOP_PULL_REQUEST_LABEL);
+            (0, core_1.debug)(`Found ${oldTopPRs.length} old top PRs.`);
+            (0, core_1.debug)(`Getting new top PRs...`);
             newTopPRs = (0, helpers_1.getTopIssues)(PRs, TOP_LIST_SIZE, SUBTRACT_NEGATIVE);
             (0, core_1.debug)(`Found ${newTopPRs.length} new top PRs.`);
+            (0, core_1.debug)(`New top PRs: ${(0, helpers_1.array2str)(newTopPRs.map(PR => PR.number.toString()))}.`);
             if (LABEL) {
                 (0, core_1.debug)('Labeling top PRs...');
                 if (!DRY_RUN) {
-                    yield (0, helpers_1.labelTopIssues)(owner, repo, currentTopPRs, newTopPRs, TOP_PULL_REQUEST_LABEL, TOP_PULL_REQUEST_LABEL_DESCRIPTION, TOP_PULL_REQUEST_LABEL_COLOUR);
+                    yield (0, helpers_1.labelTopIssues)(owner, repo, oldTopPRs, newTopPRs, TOP_PULL_REQUEST_LABEL, TOP_PULL_REQUEST_LABEL_DESCRIPTION, TOP_PULL_REQUEST_LABEL_COLOUR);
                 }
                 else {
-                    (0, core_1.info)('DRY_RUN is enabled, skipping labeling top PRs.');
+                    (0, core_1.info)('DRY_RUN is enabled, skipping labeling of top PRs.');
                 }
             }
         }
@@ -651,13 +673,15 @@ function run() {
         if (DASHBOARD) {
             (0, core_1.debug)('Creating dashboard markdown...');
             const dashboard_body = (0, helpers_1.createDashboardMarkdown)(newTopIssues, newTopBugs, newTopFeatures, newTopPRs, constants_1.DASHBOARD_HEADER, HIDE_DASHBOARD_FOOTER ? constants_1.DASHBOARD_FOOTER : '');
-            (0, core_1.debug)(`Dashboard body: ${dashboard_body}`);
+            DRY_RUN
+                ? (0, core_1.info)(`Dashboard body: ${dashboard_body}.`)
+                : (0, core_1.debug)(`Dashboard body: ${dashboard_body}.`);
             (0, core_1.debug)('Creating/updating dashboard issue...');
             if (!DRY_RUN) {
                 yield (0, helpers_1.createDashboard)(owner, repo, issues, dashboard_body, DASHBOARD_TITLE, DASHBOARD_LABEL, DASHBOARD_LABEL_COLOUR, DASHBOARD_LABEL_DESCRIPTION);
             }
             else {
-                (0, core_1.info)('DRY_RUN is enabled, skipping creating/updating dashboard issue.');
+                (0, core_1.warning)('DRY_RUN is enabled, skipping creating/updating dashboard issue.');
             }
         }
     });

@@ -1,11 +1,12 @@
 /**
  * @file Main action file.
  */
-import {debug, getInput, info, setCommandEcho} from '@actions/core'
+import {debug, getInput, info, warning} from '@actions/core'
 import {context} from '@actions/github'
 import dotenv from 'dotenv'
 import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
 import {
+  array2str,
   createDashboard,
   createDashboardMarkdown,
   fetchOpenIssues,
@@ -52,22 +53,17 @@ const TOP_PULL_REQUEST_LABEL_DESCRIPTION = getInput(
 )
 const TOP_PULL_REQUEST_LABEL_COLOUR = getInput('top_pull_request_label_colour')
 
-// Enable debug logging if dry run is enabled
-if (DRY_RUN) {
-  info('DRY_RUN is enabled, enabling debug logging')
-  setCommandEcho(true)
-}
-
 /**
  * Main function.
  */
 async function run(): Promise<void> {
   debug('Fetching repo info...')
   const {owner, repo} = getRepoInfo(context)
-  debug(`Repo: ${repo}, Owner: ${owner}`)
-  debug('Fetching open Issues and PRs...')
+  debug(`Repo: ${repo}, Owner: ${owner}.`)
+  debug('Fetching open Issues...')
   const issues = await fetchOpenIssues(owner, repo)
   debug(`Found ${issues.length} open issues.`)
+  debug('Fetching open PRs...')
   const PRs = await fetchOpenPRs(owner, repo)
   debug(`Found ${PRs.length} open PRs.`)
 
@@ -80,25 +76,36 @@ async function run(): Promise<void> {
   // Retrieve and label top issues.
   let newTopIssues: IssueNode[] = []
   if (TOP_ISSUES) {
-    debug('Getting top issues...')
-    const currentTopIssues = issuesWithLabel(issues, TOP_ISSUE_LABEL)
-    debug(`Found ${currentTopIssues.length} top issues.`)
+    debug('Getting old top issues...')
+    const oldTopIssues = issuesWithLabel(issues, TOP_ISSUE_LABEL)
+    debug(`Found ${oldTopIssues.length} old top issues.`)
+    debug(
+      `Old top issues: ${array2str(
+        oldTopIssues.map(issue => issue.number.toString())
+      )}.`
+    )
+    debug(`Getting new top issues...`)
     newTopIssues = getTopIssues(issues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE)
     debug(`Found ${newTopIssues.length} new top issues.`)
+    debug(
+      `New top issues: ${array2str(
+        newTopIssues.map(issue => issue.number.toString())
+      )}.`
+    )
     if (LABEL) {
       debug('Labeling top issues...')
       if (!DRY_RUN) {
         await labelTopIssues(
           owner,
           repo,
-          currentTopIssues,
+          oldTopIssues,
           newTopIssues,
           TOP_ISSUE_LABEL,
           TOP_ISSUE_LABEL_DESCRIPTION,
           TOP_ISSUE_LABEL_COLOUR
         )
       } else {
-        info('DRY_RUN is enabled, skipping labeling top issues.')
+        warning('DRY_RUN is enabled, skipping labeling of top issues.')
       }
     }
   }
@@ -106,27 +113,39 @@ async function run(): Promise<void> {
   // Retrieve and label top bugs.
   let newTopBugs: IssueNode[] = []
   if (TOP_BUGS) {
-    debug('Getting top bugs...')
+    debug('Getting bugs...')
     const bugIssues = issuesWithLabel(issues, BUG_LABEL)
     debug(`Found ${bugIssues.length} bugs.`)
-    const currentTopBugs = issuesWithLabel(issues, TOP_BUG_LABEL)
-    debug(`Found ${currentTopBugs.length} top bugs.`)
+    debug(`Getting old top bugs...`)
+    const oldTopBugs = issuesWithLabel(issues, TOP_BUG_LABEL)
+    debug(`Found ${oldTopBugs.length} old top bugs.`)
+    debug(
+      `Old top bugs: ${array2str(
+        oldTopBugs.map(bug => bug.number.toString())
+      )}.`
+    )
+    debug(`Getting new top bugs...`)
     newTopBugs = getTopIssues(bugIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE)
     debug(`Found ${newTopBugs.length} new top bugs.`)
+    debug(
+      `New top bugs: ${array2str(
+        newTopBugs.map(bug => bug.number.toString())
+      )}.`
+    )
     if (LABEL) {
       debug('Labeling top bugs...')
       if (!DRY_RUN) {
         await labelTopIssues(
           owner,
           repo,
-          currentTopBugs,
+          oldTopBugs,
           newTopBugs,
           TOP_BUG_LABEL,
           TOP_BUG_LABEL_DESCRIPTION,
           TOP_BUG_LABEL_COLOUR
         )
       } else {
-        info('DRY_RUN is enabled, skipping labeling top bugs.')
+        warning('DRY_RUN is enabled, skipping labeling of top bugs.')
       }
     }
   }
@@ -134,30 +153,45 @@ async function run(): Promise<void> {
   // Retrieve and label top features.
   let newTopFeatures: IssueNode[] = []
   if (TOP_FEATURES) {
-    debug('Getting top features...')
+    debug('Getting feature requests...')
     const featureIssues = issuesWithLabel(issues, FEATURE_LABEL)
-    debug(`Found ${featureIssues.length} features.`)
-    const currentTopFeatures = issuesWithLabel(issues, TOP_FEATURE_LABEL)
-    debug(`Found ${currentTopFeatures.length} top features.`)
+    debug(`Found ${featureIssues.length} feature requests.`)
+    debug(`Getting old top feature requests...`)
+    const oldTopFeatures = issuesWithLabel(issues, TOP_FEATURE_LABEL)
+    debug(`Found ${oldTopFeatures.length} old top feature requests.`)
+    debug(
+      `Old top feature requests: ${array2str(
+        oldTopFeatures.map(feature => feature.number.toString())
+      )}.`
+    )
+    debug(`Getting new top feature requests...`)
     newTopFeatures = getTopIssues(
       featureIssues,
       TOP_LIST_SIZE,
       SUBTRACT_NEGATIVE
     )
+    debug(`Found ${newTopFeatures.length} new top feature requests.`)
+    debug(
+      `New top feature requests: ${array2str(
+        newTopFeatures.map(feature => feature.number.toString())
+      )}.`
+    )
     if (LABEL) {
-      debug('Labeling top features...')
+      debug('Labeling top feature requests...')
       if (!DRY_RUN) {
         await labelTopIssues(
           owner,
           repo,
-          currentTopFeatures,
+          oldTopFeatures,
           newTopFeatures,
           TOP_FEATURE_LABEL,
           TOP_FEATURE_LABEL_DESCRIPTION,
           TOP_FEATURE_LABEL_COLOUR
         )
       } else {
-        info('DRY_RUN is enabled, skipping labeling top features.')
+        warning(
+          'DRY_RUN is enabled, skipping labeling of top feature requests.'
+        )
       }
     }
   }
@@ -165,25 +199,29 @@ async function run(): Promise<void> {
   // Retrieve and label top PRs.
   let newTopPRs: IssueNode[] = []
   if (TOP_PULL_REQUEST) {
-    debug('Getting top PRs...')
-    const currentTopPRs = issuesWithLabel(PRs, TOP_PULL_REQUEST_LABEL)
-    debug(`Found ${currentTopPRs.length} top PRs.`)
+    debug('Getting old top PRs...')
+    const oldTopPRs = issuesWithLabel(PRs, TOP_PULL_REQUEST_LABEL)
+    debug(`Found ${oldTopPRs.length} old top PRs.`)
+    debug(`Getting new top PRs...`)
     newTopPRs = getTopIssues(PRs, TOP_LIST_SIZE, SUBTRACT_NEGATIVE)
     debug(`Found ${newTopPRs.length} new top PRs.`)
+    debug(
+      `New top PRs: ${array2str(newTopPRs.map(PR => PR.number.toString()))}.`
+    )
     if (LABEL) {
       debug('Labeling top PRs...')
       if (!DRY_RUN) {
         await labelTopIssues(
           owner,
           repo,
-          currentTopPRs,
+          oldTopPRs,
           newTopPRs,
           TOP_PULL_REQUEST_LABEL,
           TOP_PULL_REQUEST_LABEL_DESCRIPTION,
           TOP_PULL_REQUEST_LABEL_COLOUR
         )
       } else {
-        info('DRY_RUN is enabled, skipping labeling top PRs.')
+        info('DRY_RUN is enabled, skipping labeling of top PRs.')
       }
     }
   }
@@ -199,7 +237,9 @@ async function run(): Promise<void> {
       DASHBOARD_HEADER,
       HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : ''
     )
-    debug(`Dashboard body: ${dashboard_body}`)
+    DRY_RUN
+      ? info(`Dashboard body: ${dashboard_body}.`)
+      : debug(`Dashboard body: ${dashboard_body}.`)
     debug('Creating/updating dashboard issue...')
     if (!DRY_RUN) {
       await createDashboard(
@@ -213,7 +253,7 @@ async function run(): Promise<void> {
         DASHBOARD_LABEL_DESCRIPTION
       )
     } else {
-      info('DRY_RUN is enabled, skipping creating/updating dashboard issue.')
+      warning('DRY_RUN is enabled, skipping creating/updating dashboard issue.')
     }
   }
 }
