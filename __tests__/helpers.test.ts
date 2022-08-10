@@ -224,17 +224,17 @@ describe('addTotalReactions', () => {
 describe('getTopIssues', () => {
   it('should return an empty array if no issues are found', () => {
     const issues = [] as IssueNode[]
-    const result = getTopIssues(issues, 3, true)
+    const result = getTopIssues(issues, 3, true, '')
     expect(result).toEqual([])
   })
 
   it("should return an array length 2 when 'size' is set to `2`", () => {
-    const result = getTopIssues(dummyIssues, 2, true)
+    const result = getTopIssues(dummyIssues, 2, true, '')
     expect(result).toHaveLength(2)
   })
 
   it("should return the correct top issues when 'subtractNegative' is set to `false`", () => {
-    const result = getTopIssues(dummyIssues, 10, false)
+    const result = getTopIssues(dummyIssues, 10, false, '')
     expect(result).toEqual([
       dummyTopIssues[2],
       dummyTopIssues[1],
@@ -244,7 +244,7 @@ describe('getTopIssues', () => {
   })
 
   it("should return the correct top issues when 'subtractNegative' is set to `true`", () => {
-    const result = getTopIssues(dummyIssues, 10, true)
+    const result = getTopIssues(dummyIssues, 10, true, '')
     expect(result).toEqual([
       dummyTopIssuesNegativeSubtract[2],
       dummyTopIssuesNegativeSubtract[0],
@@ -314,7 +314,7 @@ describe('createDashboardMarkdown', () => {
   })
 
   it('should return the correct dashboard when top issues are found', () => {
-    const topDummyIssues = getTopIssues(dummyIssues, 10, true)
+    const topDummyIssues = getTopIssues(dummyIssues, 10, true, '')
     const result = createDashboardMarkdown(
       topDummyIssues.slice(0, 2),
       topDummyIssues.slice(1, 2),
@@ -330,7 +330,7 @@ describe('createDashboardMarkdown', () => {
   })
 
   it("should return dashboard with total emotions count when 'showTotalReactions' is `true`", () => {
-    const topDummyIssues = getTopIssues(dummyIssues, 10, true)
+    const topDummyIssues = getTopIssues(dummyIssues, 10, true, '')
     const result = createDashboardMarkdown(
       topDummyIssues.slice(0, 2),
       topDummyIssues.slice(1, 2),
