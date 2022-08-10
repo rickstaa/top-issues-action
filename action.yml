@@ -10,7 +10,7 @@ inputs:
   top_list_size:
     required: false
     description: 'The number of top issues to show.'
-    default: '10'
+    default: '5'
   subtract_negative:
     required: false
     description: 'Subtract negative from positive reactions to get the total count.'
