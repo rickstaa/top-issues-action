@@ -197,7 +197,7 @@ export const fetchOpenPRs = async (
                 negative: reactions(content: THUMBS_DOWN) {
                   totalCount
                 }
-                labels(first: 10) {
+                labels(first: 100) {
                   nodes {
                     name
                   }

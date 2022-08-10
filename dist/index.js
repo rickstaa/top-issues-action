@@ -163,7 +163,7 @@ const fetchOpenPRs = (user, repo) => __awaiter(void 0, void 0, void 0, function*
                 negative: reactions(content: THUMBS_DOWN) {
                   totalCount
                 }
-                labels(first: 10) {
+                labels(first: 100) {
                   nodes {
                     name
                   }
