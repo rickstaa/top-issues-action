@@ -88,7 +88,12 @@ async function run(): Promise<void> {
       )}.`
     )
     debug(`Getting new top issues...`)
-    newTopIssues = getTopIssues(issues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE)
+    newTopIssues = getTopIssues(
+      issues,
+      TOP_LIST_SIZE,
+      SUBTRACT_NEGATIVE,
+      DASHBOARD_LABEL
+    )
     debug(`Found ${newTopIssues.length} new top issues.`)
     debug(
       `New top issues: ${array2str(
@@ -128,7 +133,12 @@ async function run(): Promise<void> {
       )}.`
     )
     debug(`Getting new top bugs...`)
-    newTopBugs = getTopIssues(bugIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE)
+    newTopBugs = getTopIssues(
+      bugIssues,
+      TOP_LIST_SIZE,
+      SUBTRACT_NEGATIVE,
+      DASHBOARD_LABEL
+    )
     debug(`Found ${newTopBugs.length} new top bugs.`)
     debug(
       `New top bugs: ${array2str(
@@ -171,7 +181,8 @@ async function run(): Promise<void> {
     newTopFeatures = getTopIssues(
       featureIssues,
       TOP_LIST_SIZE,
-      SUBTRACT_NEGATIVE
+      SUBTRACT_NEGATIVE,
+      DASHBOARD_LABEL
     )
     debug(`Found ${newTopFeatures.length} new top feature requests.`)
     debug(
@@ -206,7 +217,12 @@ async function run(): Promise<void> {
     const oldTopPRs = issuesWithLabel(PRs, TOP_PULL_REQUEST_LABEL)
     debug(`Found ${oldTopPRs.length} old top PRs.`)
     debug(`Getting new top PRs...`)
-    newTopPRs = getTopIssues(PRs, TOP_LIST_SIZE, SUBTRACT_NEGATIVE)
+    newTopPRs = getTopIssues(
+      PRs,
+      TOP_LIST_SIZE,
+      SUBTRACT_NEGATIVE,
+      DASHBOARD_LABEL
+    )
     debug(`Found ${newTopPRs.length} new top PRs.`)
     debug(
       `New top PRs: ${array2str(newTopPRs.map(PR => PR.number.toString()))}.`
@@ -238,7 +254,7 @@ async function run(): Promise<void> {
       newTopFeatures,
       newTopPRs,
       DASHBOARD_HEADER,
-      HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : '',
+      !HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : '',
       DASHBOARD_SHOW_TOTAL_REACTIONS
     )
     DRY_RUN

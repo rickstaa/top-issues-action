@@ -137,7 +137,7 @@ export const fetchOpenIssues = async (
                     negative: reactions(content: THUMBS_DOWN) {
                       totalCount
                     }
-                    labels(first: 10) {
+                    labels(first: 100, orderBy:{field: CREATED_AT, direction: DESC}) {
                       nodes {
                         name
                       }
@@ -197,7 +197,7 @@ export const fetchOpenPRs = async (
                 negative: reactions(content: THUMBS_DOWN) {
                   totalCount
                 }
-                labels(first: 100) {
+                labels(first: 100, orderBy:{field: CREATED_AT, direction: DESC}) {
                   nodes {
                     name
                   }
@@ -279,14 +279,19 @@ export const addTotalReactions = (
  * @param issues Issues object to get the top issues from.
  * @param size Number of issues to get.
  * @param subtractNegative Whether to subtract negative reactions from the total count.
+ * @param dashboardLabel The label used for the top issues dashboard.
  * @returns Top issues.
  */
 export const getTopIssues = (
   issues: IssueNode[],
   size: number,
-  subtractNegative: boolean
+  subtractNegative: boolean,
+  dashboardLabel: string
 ): TopIssueNode[] => {
   let topIssues: TopIssueNode[] = addTotalReactions(issues, subtractNegative)
+  topIssues = topIssues.filter(issue =>
+    issue.labels.nodes.some(lab => lab.name !== dashboardLabel)
+  ) // Remove top issues dashboard issue
   topIssues = topIssues.filter(issue => issue.totalReactions > 0) // Remove issues with no reactions
   topIssues = topIssues.sort((a: TopIssueNode, b: TopIssueNode) => {
     return b.totalReactions - a.totalReactions
