@@ -235,7 +235,7 @@ async function run(): Promise<void> {
       newTopFeatures,
       newTopPRs,
       DASHBOARD_HEADER,
-      HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : ''
+      !HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : ''
     )
     DRY_RUN
       ? info(`Dashboard body: ${dashboard_body}.`)
