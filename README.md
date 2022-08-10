@@ -62,6 +62,7 @@ Various inputs are defined in [action.yml](action.yml) to let you configure the 
 | `dashboard_label`                    | The label used for the top issues dashboard. title.                                               | :star: top issues dashboard |
 | `dashboard_label_description`        | The description used for the top issues dashboard label.                                          | Top issues dashboard.       |
 | `dashboard_label_colour`             | The colour used for the top issues dashboard label.                                               | `#EED801`                   |
+| `dashboard_show_total_reactions`     | Display the total number of positive reactions after each dashboard item.                         | `false`                     |
 | `hide_dashboard_footer`              | Hide dashboard footer.                                                                            | `false`                     |
 | `top_issues`                         | Display top issues.                                                                               | `true`                      |
 | `top_issue_label`                    | The label used for labelling  top issues.                                                         | :star: top issue            |

@@ -4,7 +4,7 @@
 import {setFailed} from '@actions/core'
 import {context} from '@actions/github'
 import {RequestError} from '@octokit/request-error'
-import type {IssueNode} from './types'
+import type {IssueNode, TopIssueNode} from './types'
 import {octokit} from './utils'
 
 type GithubContext = typeof context
@@ -240,6 +240,41 @@ export const issuesWithLabel = (
 }
 
 /**
+ * Get the total number of reactions for a given issue.
+ * @param issue The issue to check.
+ * @param subtractNegative Whether to subtract negative reactions from the total count.
+ * @returns The total number of reactions.
+ */
+export const getReactionsCount = (
+  issue: IssueNode,
+  subtractNegative: boolean
+): number => {
+  return subtractNegative
+    ? issue.positive.totalCount - issue.negative.totalCount
+    : issue.positive.totalCount
+}
+
+/**
+ * Add totalReactions property to list of issues.
+ * @param issues Issues to add the property to.
+ * @param subtractNegative Whether to subtract negative reactions from the total count.
+ * @returns List of issues with totalReactions property.
+ */
+export const addTotalReactions = (
+  issues: IssueNode[],
+  subtractNegative: boolean
+): TopIssueNode[] => {
+  const issueNodeWithTotalReactions: TopIssueNode[] = []
+  for (const issue of issues) {
+    issueNodeWithTotalReactions.push({
+      ...issue,
+      totalReactions: getReactionsCount(issue, subtractNegative)
+    })
+  }
+  return issueNodeWithTotalReactions
+}
+
+/**
  * Get the top issues.
  * @param issues Issues object to get the top issues from.
  * @param size Number of issues to get.
@@ -250,20 +285,13 @@ export const getTopIssues = (
   issues: IssueNode[],
   size: number,
   subtractNegative: boolean
-): IssueNode[] => {
-  issues = issues.filter(issue =>
-    subtractNegative
-      ? issue.positive.totalCount + issue.negative.totalCount > 0
-      : issue.positive.totalCount > 0
-  ) // Remove issues with no reactions
-  issues = issues.sort((a: IssueNode, b: IssueNode) => {
-    return subtractNegative
-      ? b.positive.totalCount -
-          b.negative.totalCount -
-          (a.positive.totalCount - a.negative.totalCount)
-      : b.positive.totalCount - a.positive.totalCount
+): TopIssueNode[] => {
+  let topIssues: TopIssueNode[] = addTotalReactions(issues, subtractNegative)
+  topIssues = topIssues.filter(issue => issue.totalReactions > 0) // Remove issues with no reactions
+  topIssues = topIssues.sort((a: TopIssueNode, b: TopIssueNode) => {
+    return b.totalReactions - a.totalReactions
   })
-  return issues.slice(0, size)
+  return topIssues.slice(0, size)
 }
 
 /**
@@ -495,40 +523,58 @@ export const labelTopIssues = async (
  * @param newTopPRs Top pull requests.
  * @param header Header of the dashboard.
  * @param footer Footer of the dashboard.
+ * @param showTotalReactions Whether to show the total number of positive reactions after each dashboard item.
  * @returns
  */
 export const createDashboardMarkdown = (
-  topIssues: IssueNode[],
-  topBugs: IssueNode[],
-  topFeatures: IssueNode[],
-  topPRs: IssueNode[],
+  topIssues: TopIssueNode[],
+  topBugs: TopIssueNode[],
+  topFeatures: TopIssueNode[],
+  topPRs: TopIssueNode[],
   header: string,
-  footer: string
+  footer: string,
+  showTotalReactions: boolean
 ): string => {
   let dashboard_body = `${header}`
   let dashboard_issues_body = ``
   if (topIssues.length > 0) {
     dashboard_issues_body += `\n\n## Top issues\n`
     dashboard_issues_body += `\n${topIssues
-      .map((issue, idx) => `${idx + 1}. #${issue.number}`)
+      .map((issue, idx) =>
+        showTotalReactions
+          ? `${idx + 1}. #${issue.number} :+1:\`${issue.totalReactions}\``
+          : `${idx + 1}. #${issue.number}`
+      )
       .join('\n')}`
   }
   if (topBugs.length > 0) {
     dashboard_issues_body += `\n\n## Top bugs\n`
     dashboard_issues_body += `\n${topBugs
-      .map((bug, idx) => `${idx + 1}. #${bug.number}`)
+      .map((bug, idx) =>
+        showTotalReactions
+          ? `${idx + 1}. #${bug.number} :+1:\`${bug.totalReactions}\``
+          : `${idx + 1}. #${bug.number}`
+      )
       .join('\n')}`
   }
   if (topFeatures.length > 0) {
     dashboard_issues_body += `\n\n## Top feature requests\n`
     dashboard_issues_body += `\n${topFeatures
-      .map((feature, idx) => `${idx + 1}. #${feature.number}`)
+      .map((feature, idx) =>
+        showTotalReactions
+          ? `${idx + 1}. #${feature.number} :+1:\`${feature.totalReactions}\``
+          : `${idx + 1}. #${feature.number}`
+      )
       .join('\n')}`
   }
   if (topPRs.length > 0) {
     dashboard_issues_body += `\n\n## Top PRs\n`
     dashboard_issues_body += `\n${topPRs
-      .map((PR, idx) => `${idx + 1}. #${PR.number}`)
+      .map((PR, idx) =>
+        showTotalReactions
+          ? `${idx + 1}. #${PR.number} :+1:\`${PR.totalReactions}\``
+          : `${idx + 1}. #${PR.number}`
+      )
       .join('\n')}`
   }
   if (dashboard_issues_body) {
@@ -549,7 +595,7 @@ export const createDashboardMarkdown = (
  * @param title The title of the dashboard.
  * @param label The label of the dashboard.
  * @param labelColour The colour of the dashboard label.
- * @param labelDescription  The description of the dashboard label.
+ * @param labelDescription The description of the dashboard label.
  */
 export const createDashboard = async (
   owner: string,

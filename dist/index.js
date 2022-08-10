@@ -36,7 +36,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createDashboard = exports.createDashboardMarkdown = exports.labelTopIssues = exports.getIssuesDifference = exports.initLabel = exports.getTopIssues = exports.issuesWithLabel = exports.fetchOpenPRs = exports.fetchOpenIssues = exports.getRepoInfo = exports.array2str = exports.str2bool = void 0;
+exports.createDashboard = exports.createDashboardMarkdown = exports.labelTopIssues = exports.getIssuesDifference = exports.initLabel = exports.getTopIssues = exports.addTotalReactions = exports.getReactionsCount = exports.issuesWithLabel = exports.fetchOpenPRs = exports.fetchOpenIssues = exports.getRepoInfo = exports.array2str = exports.str2bool = void 0;
 /**
  * @file Contains action helper functions.
  */
@@ -203,6 +203,32 @@ const issuesWithLabel = (issues, label) => {
 };
 exports.issuesWithLabel = issuesWithLabel;
 /**
+ * Get the total number of reactions for a given issue.
+ * @param issue The issue to check.
+ * @param subtractNegative Whether to subtract negative reactions from the total count.
+ * @returns The total number of reactions.
+ */
+const getReactionsCount = (issue, subtractNegative) => {
+    return subtractNegative
+        ? issue.positive.totalCount - issue.negative.totalCount
+        : issue.positive.totalCount;
+};
+exports.getReactionsCount = getReactionsCount;
+/**
+ * Add totalReactions property to list of issues.
+ * @param issues Issues to add the property to.
+ * @param subtractNegative Whether to subtract negative reactions from the total count.
+ * @returns List of issues with totalReactions property.
+ */
+const addTotalReactions = (issues, subtractNegative) => {
+    const issueNodeWithTotalReactions = [];
+    for (const issue of issues) {
+        issueNodeWithTotalReactions.push(Object.assign(Object.assign({}, issue), { totalReactions: (0, exports.getReactionsCount)(issue, subtractNegative) }));
+    }
+    return issueNodeWithTotalReactions;
+};
+exports.addTotalReactions = addTotalReactions;
+/**
  * Get the top issues.
  * @param issues Issues object to get the top issues from.
  * @param size Number of issues to get.
@@ -210,17 +236,12 @@ exports.issuesWithLabel = issuesWithLabel;
  * @returns Top issues.
  */
 const getTopIssues = (issues, size, subtractNegative) => {
-    issues = issues.filter(issue => subtractNegative
-        ? issue.positive.totalCount + issue.negative.totalCount > 0
-        : issue.positive.totalCount > 0); // Remove issues with no reactions
-    issues = issues.sort((a, b) => {
-        return subtractNegative
-            ? b.positive.totalCount -
-                b.negative.totalCount -
-                (a.positive.totalCount - a.negative.totalCount)
-            : b.positive.totalCount - a.positive.totalCount;
+    let topIssues = (0, exports.addTotalReactions)(issues, subtractNegative);
+    topIssues = topIssues.filter(issue => issue.totalReactions > 0); // Remove issues with no reactions
+    topIssues = topIssues.sort((a, b) => {
+        return b.totalReactions - a.totalReactions;
     });
-    return issues.slice(0, size);
+    return topIssues.slice(0, size);
 };
 exports.getTopIssues = getTopIssues;
 /**
@@ -399,33 +420,42 @@ exports.labelTopIssues = labelTopIssues;
  * @param newTopPRs Top pull requests.
  * @param header Header of the dashboard.
  * @param footer Footer of the dashboard.
+ * @param showTotalReactions Whether to show the total number of positive reactions after each dashboard item.
  * @returns
  */
-const createDashboardMarkdown = (topIssues, topBugs, topFeatures, topPRs, header, footer) => {
+const createDashboardMarkdown = (topIssues, topBugs, topFeatures, topPRs, header, footer, showTotalReactions) => {
     let dashboard_body = `${header}`;
     let dashboard_issues_body = ``;
     if (topIssues.length > 0) {
         dashboard_issues_body += `\n\n## Top issues\n`;
         dashboard_issues_body += `\n${topIssues
-            .map((issue, idx) => `${idx + 1}. #${issue.number}`)
+            .map((issue, idx) => showTotalReactions
+            ? `${idx + 1}. #${issue.number} :+1:\`${issue.totalReactions}\``
+            : `${idx + 1}. #${issue.number}`)
             .join('\n')}`;
     }
     if (topBugs.length > 0) {
         dashboard_issues_body += `\n\n## Top bugs\n`;
         dashboard_issues_body += `\n${topBugs
-            .map((bug, idx) => `${idx + 1}. #${bug.number}`)
+            .map((bug, idx) => showTotalReactions
+            ? `${idx + 1}. #${bug.number} :+1:\`${bug.totalReactions}\``
+            : `${idx + 1}. #${bug.number}`)
             .join('\n')}`;
     }
     if (topFeatures.length > 0) {
         dashboard_issues_body += `\n\n## Top feature requests\n`;
         dashboard_issues_body += `\n${topFeatures
-            .map((feature, idx) => `${idx + 1}. #${feature.number}`)
+            .map((feature, idx) => showTotalReactions
+            ? `${idx + 1}. #${feature.number} :+1:\`${feature.totalReactions}\``
+            : `${idx + 1}. #${feature.number}`)
             .join('\n')}`;
     }
     if (topPRs.length > 0) {
         dashboard_issues_body += `\n\n## Top PRs\n`;
         dashboard_issues_body += `\n${topPRs
-            .map((PR, idx) => `${idx + 1}. #${PR.number}`)
+            .map((PR, idx) => showTotalReactions
+            ? `${idx + 1}. #${PR.number} :+1:\`${PR.totalReactions}\``
+            : `${idx + 1}. #${PR.number}`)
             .join('\n')}`;
     }
     if (dashboard_issues_body) {
@@ -448,7 +478,7 @@ exports.createDashboardMarkdown = createDashboardMarkdown;
  * @param title The title of the dashboard.
  * @param label The label of the dashboard.
  * @param labelColour The colour of the dashboard label.
- * @param labelDescription  The description of the dashboard label.
+ * @param labelDescription The description of the dashboard label.
  */
 const createDashboard = (owner, repo, issues, dashboard_body, title, label, labelColour, labelDescription) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -538,6 +568,7 @@ const SUBTRACT_NEGATIVE = (0, helpers_1.str2bool)((0, core_1.getInput)('subtract
 const DRY_RUN = (0, helpers_1.str2bool)((0, core_1.getInput)('dry_run'));
 const LABEL = (0, helpers_1.str2bool)((0, core_1.getInput)('label'));
 const DASHBOARD = (0, helpers_1.str2bool)((0, core_1.getInput)('dashboard'));
+const DASHBOARD_SHOW_TOTAL_REACTIONS = (0, helpers_1.str2bool)((0, core_1.getInput)('dashboard_show_total_reactions'));
 const DASHBOARD_TITLE = (0, core_1.getInput)('dashboard_title');
 const DASHBOARD_LABEL = (0, core_1.getInput)('dashboard_label');
 const DASHBOARD_LABEL_DESCRIPTION = (0, core_1.getInput)('dashboard_label_description');
@@ -672,7 +703,7 @@ function run() {
         // Create top issues dashboard.
         if (DASHBOARD) {
             (0, core_1.debug)('Creating dashboard markdown...');
-            const dashboard_body = (0, helpers_1.createDashboardMarkdown)(newTopIssues, newTopBugs, newTopFeatures, newTopPRs, constants_1.DASHBOARD_HEADER, HIDE_DASHBOARD_FOOTER ? constants_1.DASHBOARD_FOOTER : '');
+            const dashboard_body = (0, helpers_1.createDashboardMarkdown)(newTopIssues, newTopBugs, newTopFeatures, newTopPRs, constants_1.DASHBOARD_HEADER, HIDE_DASHBOARD_FOOTER ? constants_1.DASHBOARD_FOOTER : '', DASHBOARD_SHOW_TOTAL_REACTIONS);
             DRY_RUN
                 ? (0, core_1.info)(`Dashboard body: ${dashboard_body}.`)
                 : (0, core_1.debug)(`Dashboard body: ${dashboard_body}.`);

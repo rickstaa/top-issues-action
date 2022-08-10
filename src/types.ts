@@ -12,3 +12,10 @@ export interface IssueNode {
   negative: {totalCount: number}
   labels: {nodes: {name: string}[]}
 }
+
+/**
+ * Issue object with additional totalReactions property.
+ */
+export interface TopIssueNode extends IssueNode {
+  totalReactions: number
+}

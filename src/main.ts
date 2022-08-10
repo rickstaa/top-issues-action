@@ -17,7 +17,7 @@ import {
   labelTopIssues,
   str2bool
 } from './helpers'
-import type {IssueNode} from './types'
+import {TopIssueNode} from './types'
 
 dotenv.config()
 
@@ -27,6 +27,9 @@ const SUBTRACT_NEGATIVE = str2bool(getInput('subtract_negative'))
 const DRY_RUN = str2bool(getInput('dry_run'))
 const LABEL = str2bool(getInput('label'))
 const DASHBOARD = str2bool(getInput('dashboard'))
+const DASHBOARD_SHOW_TOTAL_REACTIONS = str2bool(
+  getInput('dashboard_show_total_reactions')
+)
 const DASHBOARD_TITLE = getInput('dashboard_title')
 const DASHBOARD_LABEL = getInput('dashboard_label')
 const DASHBOARD_LABEL_DESCRIPTION = getInput('dashboard_label_description')
@@ -74,7 +77,7 @@ async function run(): Promise<void> {
   }
 
   // Retrieve and label top issues.
-  let newTopIssues: IssueNode[] = []
+  let newTopIssues: TopIssueNode[] = []
   if (TOP_ISSUES) {
     debug('Getting old top issues...')
     const oldTopIssues = issuesWithLabel(issues, TOP_ISSUE_LABEL)
@@ -111,7 +114,7 @@ async function run(): Promise<void> {
   }
 
   // Retrieve and label top bugs.
-  let newTopBugs: IssueNode[] = []
+  let newTopBugs: TopIssueNode[] = []
   if (TOP_BUGS) {
     debug('Getting bugs...')
     const bugIssues = issuesWithLabel(issues, BUG_LABEL)
@@ -151,7 +154,7 @@ async function run(): Promise<void> {
   }
 
   // Retrieve and label top features.
-  let newTopFeatures: IssueNode[] = []
+  let newTopFeatures: TopIssueNode[] = []
   if (TOP_FEATURES) {
     debug('Getting feature requests...')
     const featureIssues = issuesWithLabel(issues, FEATURE_LABEL)
@@ -197,7 +200,7 @@ async function run(): Promise<void> {
   }
 
   // Retrieve and label top PRs.
-  let newTopPRs: IssueNode[] = []
+  let newTopPRs: TopIssueNode[] = []
   if (TOP_PULL_REQUEST) {
     debug('Getting old top PRs...')
     const oldTopPRs = issuesWithLabel(PRs, TOP_PULL_REQUEST_LABEL)
@@ -235,7 +238,8 @@ async function run(): Promise<void> {
       newTopFeatures,
       newTopPRs,
       DASHBOARD_HEADER,
-      HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : ''
+      HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : '',
+      DASHBOARD_SHOW_TOTAL_REACTIONS
     )
     DRY_RUN
       ? info(`Dashboard body: ${dashboard_body}.`)

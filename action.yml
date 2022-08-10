@@ -44,6 +44,10 @@ inputs:
     required: false
     description: 'The colour used for the top issues dashboard label.'
     default: '#006B75'
+  dashboard_show_total_reactions:
+    required: false
+    description: 'Display the total number of positive reactions after each dashboard item.'
+    default: 'false'
   hide_dashboard_footer:
     required: false
     description: 'Hide dashboard footer.'
