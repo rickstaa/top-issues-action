@@ -90,13 +90,13 @@ This action currently does not have any outputs.
 
 ### Examples workflow - Create Dashboard and label top issues, bugs, features and pull requests
 
-The following example uses the [schedule](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) event to run the top-issues-action every day with all features enabled.
+The following example uses the [schedule](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) event to run the top-issues-action every day at 12:00 AM with all features enabled.
 
 ```yaml
 name: Top issues action.
 on:
   schedule:
-  - cron:  '* * */1 * *'
+  - cron:  '0 0 */1 * *'
 
 jobs:
   showAndLabelTopIssues:
