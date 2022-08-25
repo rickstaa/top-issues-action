@@ -110,6 +110,7 @@ jobs:
       with:
         label: true
         dashboard: true
+        dashboard_show_total_reactions: true
         top_issues: true
         top_bugs: true
         top_features: true
