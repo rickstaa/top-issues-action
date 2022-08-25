@@ -99,7 +99,7 @@ on:
   - cron:  '0 0 */1 * *'
 
 jobs:
-  showAndLabelTopIssues:
+  ShowAndLabelTopIssues:
     name: Display and label top issues.
     runs-on: ubuntu-latest
     steps:
@@ -107,6 +107,7 @@ jobs:
       uses: rickstaa/top-issues-action@v1
       env:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+      with:
         label: true
         dashboard: true
         top_issues: true
