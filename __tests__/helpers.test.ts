@@ -6,11 +6,13 @@
 import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from '../src/constants'
 import {
   addTotalReactions,
+  array2str,
   createDashboardMarkdown,
   getIssuesDifference,
   getReactionsCount,
   getTopIssues,
-  issuesWithLabel
+  issuesWithLabel,
+  str2bool
 } from '../src/helpers'
 import {IssueNode} from '../src/types'
 
@@ -178,6 +180,45 @@ A simple dashboard that lists the top issues/bugs/features and pull requests.
 > Created by the [rickstaa/top-issues-action](https://github.com/rickstaa/top-issues-action) action (last update: 10/08/2022, 12:27:08).`
 
 // == Tests ==
+describe('str2bool', () => {
+  it("should return true for 'TRUE'", () => {
+    expect(str2bool('TRUE')).toBe(true)
+  })
+
+  it("should return true for 'True'", () => {
+    expect(str2bool('True')).toBe(true)
+  })
+
+  it("should return true for 'true'", () => {
+    expect(str2bool('true')).toBe(true)
+  })
+
+  it("should return false for 'FALSE'", () => {
+    expect(str2bool('FALSE')).toBe(false)
+  })
+
+  it("should return false for 'False'", () => {
+    expect(str2bool('False')).toBe(false)
+  })
+
+  it("should return false for 'false'", () => {
+    expect(str2bool('false')).toBe(false)
+  })
+
+  it("should return false for 'other'", () => {
+    expect(str2bool('other')).toBe(false)
+  })
+})
+
+describe('array2str', () => {
+  it('should return empty string for empty array', () => {
+    expect(array2str([])).toBe('')
+  })
+  it('should return string with comma separated values', () => {
+    expect(array2str(['a', 'b', 'c'])).toBe('a, b and c')
+  })
+})
+
 describe('issuesWithLabel', () => {
   it('should return an empty array if no issues are found', () => {
     const issues = [] as IssueNode[]
