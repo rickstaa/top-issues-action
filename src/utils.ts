@@ -1,7 +1,6 @@
 /**
  * @ Contains utility functions and classes used in the application.
  */
-
 import {getInput, setFailed} from '@actions/core'
 import {getOctokit} from '@actions/github'
 import dotenv from 'dotenv'
