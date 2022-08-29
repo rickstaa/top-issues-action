@@ -1,5 +1,5 @@
 /**
- * @ Contains utility functions and classes used in the application.
+ * @file Contains utility functions and classes used in the application.
  */
 import {getInput, setFailed} from '@actions/core'
 import {getOctokit} from '@actions/github'
