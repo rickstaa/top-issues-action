@@ -7,7 +7,7 @@ import {RequestError} from '@octokit/request-error'
 import type {IssueNode, TopIssueNode} from './types'
 import {octokit} from './utils'
 
-type GithubContext = typeof context
+export type GithubContext = typeof context
 
 // == Types ==
 

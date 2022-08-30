@@ -10,7 +10,9 @@ import {
   createDashboardMarkdown,
   getIssuesDifference,
   getReactionsCount,
+  getRepoInfo,
   getTopIssues,
+  GithubContext,
   issuesWithLabel,
   str2bool
 } from '../src/helpers'
@@ -216,6 +218,17 @@ describe('array2str', () => {
   })
   it('should return string with comma separated values', () => {
     expect(array2str(['a', 'b', 'c'])).toBe('a, b and c')
+  })
+})
+
+describe('getRepoInfo', () => {
+  it('should return the issue info', async () => {
+    const repoInfoMock = {owner: 'owner', repo: 'repo'}
+    const ctx = {
+      repo: {...repoInfoMock}
+    } as unknown as GithubContext
+    const repoInfo = getRepoInfo(ctx)
+    expect(repoInfo).toStrictEqual(repoInfoMock)
   })
 })
 
