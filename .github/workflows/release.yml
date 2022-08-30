@@ -40,7 +40,7 @@ jobs:
       # Create release
       - if: "steps.tag.outputs.value != ''"
         run: |
-          gh release create ${{ steps.tag.outputs.value }} -t "Release ${{ steps.tag.outputs.value }}" --notes "${{ steps.bumpr.outputs.message }}"
+          gh release create ${{ steps.tag.outputs.value }} -t "Release ${GITHUB_REF_NAME}" --notes "${{ steps.bumpr.outputs.message }}"
         env:
           # This token is provided by Actions, you do not need to create your own token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
