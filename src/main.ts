@@ -1,10 +1,10 @@
 /**
  * @file Main action file.
  */
-import {debug, getInput, info, warning} from '@actions/core'
-import {context} from '@actions/github'
+import { debug, getInput, info, warning } from '@actions/core'
+import { context } from '@actions/github'
 import dotenv from 'dotenv'
-import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
+import { DASHBOARD_FOOTER, DASHBOARD_HEADER } from './constants'
 import {
   array2str,
   createDashboard,
@@ -17,7 +17,7 @@ import {
   labelTopIssues,
   str2bool
 } from './helpers'
-import {TopIssueNode} from './types'
+import { TopIssueNode } from './types'
 
 dotenv.config()
 
@@ -49,7 +49,7 @@ const FEATURE_LABEL = getInput('feature_label')
 const TOP_FEATURE_LABEL = getInput('top_feature_label')
 const TOP_FEATURE_LABEL_DESCRIPTION = getInput('top_feature_label_description')
 const TOP_FEATURE_LABEL_COLOUR = getInput('top_feature_label_colour')
-const TOP_PULL_REQUEST = str2bool(getInput('top_pull_request'))
+const TOP_PULL_REQUESTS = str2bool(getInput('top_pull_requests'))
 const TOP_PULL_REQUEST_LABEL = getInput('top_pull_request_label')
 const TOP_PULL_REQUEST_LABEL_DESCRIPTION = getInput(
   'top_pull_request_label_description'
@@ -212,7 +212,7 @@ async function run(): Promise<void> {
 
   // Retrieve and label top PRs.
   let newTopPRs: TopIssueNode[] = []
-  if (TOP_PULL_REQUEST) {
+  if (TOP_PULL_REQUESTS) {
     debug('Getting old top PRs...')
     const oldTopPRs = issuesWithLabel(PRs, TOP_PULL_REQUEST_LABEL)
     debug(`Found ${oldTopPRs.length} old top PRs.`)

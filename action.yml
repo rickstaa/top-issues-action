@@ -116,7 +116,7 @@ inputs:
     required: false
     description: 'Display top pull requests.'
     default: 'false'
-  top_pull_requests_label:
+  top_pull_request_label:
     required: false
     description: 'The label used for labelling  top pull request.'
     default: ':star: top pull request'

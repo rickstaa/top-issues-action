@@ -80,7 +80,7 @@ Various inputs are defined in [action.yml](action.yml) to let you configure the 
 | `top_feature_label_description`      | The description used for the top feature request label.                                           | Top feature request         |
 | `top_feature_label_colour`           | The colour used for the top feature request label.                                                | `#0E8A16`                   |
 | `top_pull_requests`                  | Display top pull requests.                                                                        | `false`                     |
-| `top_pull_requests_label`            | The label used for labelling  top pull request.                                                   | :star: top pull request     |
+| `top_pull_request_label`            | The label used for labelling  top pull request.                                                   | :star: top pull request     |
 | `top_pull_request_label_description` | The description used for the top pull request label.                                              | Top pull request.           |
 | `top_pull_request_label_colour`      | The colour used for the top pull request label.                                                   | `#41A285`                   |
 
