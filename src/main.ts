@@ -1,10 +1,10 @@
 /**
  * @file Main action file.
  */
-import { debug, getInput, info, warning } from '@actions/core'
-import { context } from '@actions/github'
+import {debug, getInput, info, warning} from '@actions/core'
+import {context} from '@actions/github'
 import dotenv from 'dotenv'
-import { DASHBOARD_FOOTER, DASHBOARD_HEADER } from './constants'
+import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
 import {
   array2str,
   createDashboard,
@@ -17,7 +17,7 @@ import {
   labelTopIssues,
   str2bool
 } from './helpers'
-import { TopIssueNode } from './types'
+import {TopIssueNode} from './types'
 
 dotenv.config()
 
