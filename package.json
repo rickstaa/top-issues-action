@@ -10,7 +10,7 @@
     "format": "prettier --write \"**/*.ts\"",
     "format:check": "prettier --check \"**/*.ts\"",
     "lint": "eslint src/**/*.ts",
-    "package": "export NODE_ENV=--openssl-legacy-provider; ncc build --license licenses.txt",
+    "package": "ncc build --license licenses.txt",
     "test": "jest",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
@@ -41,7 +41,7 @@
     "@types/jest": "^27.0.0",
     "@types/node": "^18.7.1",
     "@typescript-eslint/parser": "^5.38.0",
-    "@vercel/ncc": "^0.31.1",
+    "@vercel/ncc": "^0.34.0",
     "dotenv": "^16.0.1",
     "eslint": "^8.22.0",
     "eslint-plugin-github": "^4.3.7",
