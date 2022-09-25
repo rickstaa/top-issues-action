@@ -9,18 +9,18 @@ import {
   array2str,
   createDashboardMarkdown,
   getIssuesDifference,
+  getMultilineInput,
   getReactionsCount,
   getRepoInfo,
   getTopIssues,
   GithubContext,
-  issuesWithLabel,
-  str2bool
+  issuesWithLabel
 } from '../src/helpers'
 import {IssueNode} from '../src/types'
 
 // == Mock functions ==
 jest.mock('@actions/github')
-jest.mock('@actions/core')
+// jest.mock('@actions/core')
 
 // == Helper functions ==
 
@@ -181,34 +181,36 @@ A simple dashboard that lists the top issues/bugs/features and pull requests.
 
 > Created by the [rickstaa/top-issues-action](https://github.com/rickstaa/top-issues-action) action (last update: 10/08/2022, 12:27:08).`
 
+// Environment variables.
+const testEnvVars = {
+  INPUT_MY_INPUT_LIST: 'val1\nval2\nval3',
+  INPUT_MY_INPUT_LIST_2: 'val1,val2,val3',
+  INPUT_MY_INPUT_LIST_3: '[val1,val2,val3]',
+  INPUT_MY_INPUT_LIST_4: '[val1, val2, val3]'
+}
+
 // == Tests ==
-describe('str2bool', () => {
-  it("should return true for 'TRUE'", () => {
-    expect(str2bool('TRUE')).toBe(true)
+describe('getMultiLineInput', () => {
+  beforeEach(() => {
+    for (const key in testEnvVars) {
+      process.env[key] = testEnvVars[key as keyof typeof testEnvVars]
+    }
   })
 
-  it("should return true for 'True'", () => {
-    expect(str2bool('True')).toBe(true)
-  })
+  it('getMultilineInput works', () => {
+    expect(getMultilineInput('my input list')).toEqual(['val1', 'val2', 'val3'])
 
-  it("should return true for 'true'", () => {
-    expect(str2bool('true')).toBe(true)
-  })
+    expect(getMultilineInput('my input list 2')).toEqual([
+      'val1',
+      'val2',
+      'val3'
+    ])
 
-  it("should return false for 'FALSE'", () => {
-    expect(str2bool('FALSE')).toBe(false)
-  })
-
-  it("should return false for 'False'", () => {
-    expect(str2bool('False')).toBe(false)
-  })
-
-  it("should return false for 'false'", () => {
-    expect(str2bool('false')).toBe(false)
-  })
-
-  it("should return false for 'other'", () => {
-    expect(str2bool('other')).toBe(false)
+    expect(getMultilineInput('my input list 3')).toEqual([
+      'val1',
+      'val2',
+      'val3'
+    ])
   })
 })
 
@@ -216,6 +218,11 @@ describe('array2str', () => {
   it('should return empty string for empty array', () => {
     expect(array2str([])).toBe('')
   })
+
+  it('should return single string if array contains one item', () => {
+    expect(array2str(['a'])).toBe('a')
+  })
+
   it('should return string with comma separated values', () => {
     expect(array2str(['a', 'b', 'c'])).toBe('a, b and c')
   })

@@ -1,7 +1,7 @@
 /**
  * @file Main action file.
  */
-import {debug, getInput, info, warning} from '@actions/core'
+import {debug, getBooleanInput, getInput, info, warning} from '@actions/core'
 import {context} from '@actions/github'
 import dotenv from 'dotenv'
 import {DASHBOARD_FOOTER, DASHBOARD_HEADER} from './constants'
@@ -11,11 +11,11 @@ import {
   createDashboardMarkdown,
   fetchOpenIssues,
   fetchOpenPRs,
+  getMultilineInput,
   getRepoInfo,
   getTopIssues,
   issuesWithLabel,
-  labelTopIssues,
-  str2bool
+  labelTopIssues
 } from './helpers'
 import {TopIssueNode} from './types'
 
@@ -23,33 +23,34 @@ dotenv.config()
 
 // == Get action inputs ==
 const TOP_LIST_SIZE = parseInt(getInput('top_list_size'))
-const SUBTRACT_NEGATIVE = str2bool(getInput('subtract_negative'))
-const DRY_RUN = str2bool(getInput('dry_run'))
-const LABEL = str2bool(getInput('label'))
-const DASHBOARD = str2bool(getInput('dashboard'))
-const DASHBOARD_SHOW_TOTAL_REACTIONS = str2bool(
-  getInput('dashboard_show_total_reactions')
+const SUBTRACT_NEGATIVE = getBooleanInput('subtract_negative')
+const DRY_RUN = getBooleanInput('dry_run')
+const FILTER = getMultilineInput('filter').map(str => Number(str))
+const LABEL = getBooleanInput('label')
+const DASHBOARD = getBooleanInput('dashboard')
+const DASHBOARD_SHOW_TOTAL_REACTIONS = getBooleanInput(
+  'dashboard_show_total_reactions'
 )
 const DASHBOARD_TITLE = getInput('dashboard_title')
 const DASHBOARD_LABEL = getInput('dashboard_label')
 const DASHBOARD_LABEL_DESCRIPTION = getInput('dashboard_label_description')
 const DASHBOARD_LABEL_COLOUR = getInput('dashboard_label_colour')
-const HIDE_DASHBOARD_FOOTER = str2bool(getInput('hide_dashboard_footer'))
-const TOP_ISSUES = str2bool(getInput('top_issues'))
+const HIDE_DASHBOARD_FOOTER = getBooleanInput('hide_dashboard_footer')
+const TOP_ISSUES = getBooleanInput('top_issues')
 const TOP_ISSUE_LABEL = getInput('top_issue_label')
 const TOP_ISSUE_LABEL_DESCRIPTION = getInput('top_issue_label_description')
 const TOP_ISSUE_LABEL_COLOUR = getInput('top_issue_label_colour')
-const TOP_BUGS = str2bool(getInput('top_bugs'))
+const TOP_BUGS = getBooleanInput('top_bugs')
 const BUG_LABEL = getInput('bug_label')
 const TOP_BUG_LABEL = getInput('top_bug_label')
 const TOP_BUG_LABEL_DESCRIPTION = getInput('top_bug_label_description')
 const TOP_BUG_LABEL_COLOUR = getInput('top_bug_label_colour')
-const TOP_FEATURES = str2bool(getInput('top_features'))
+const TOP_FEATURES = getBooleanInput('top_features')
 const FEATURE_LABEL = getInput('feature_label')
 const TOP_FEATURE_LABEL = getInput('top_feature_label')
 const TOP_FEATURE_LABEL_DESCRIPTION = getInput('top_feature_label_description')
 const TOP_FEATURE_LABEL_COLOUR = getInput('top_feature_label_colour')
-const TOP_PULL_REQUESTS = str2bool(getInput('top_pull_requests'))
+const TOP_PULL_REQUESTS = getBooleanInput('top_pull_requests')
 const TOP_PULL_REQUEST_LABEL = getInput('top_pull_request_label')
 const TOP_PULL_REQUEST_LABEL_DESCRIPTION = getInput(
   'top_pull_request_label_description'
@@ -64,6 +65,9 @@ async function run(): Promise<void> {
   const {owner, repo} = getRepoInfo(context)
   debug(`Repo: ${repo}, Owner: ${owner}.`)
   debug('Fetching open Issues...')
+  if (FILTER.length > 0) {
+    debug(`Filtered issues: ${array2str(FILTER.map(num => String(num)))}.`)
+  }
   const issues = await fetchOpenIssues(owner, repo)
   debug(`Found ${issues.length} open issues.`)
   debug('Fetching open PRs...')
@@ -92,7 +96,8 @@ async function run(): Promise<void> {
       issues,
       TOP_LIST_SIZE,
       SUBTRACT_NEGATIVE,
-      DASHBOARD_LABEL
+      DASHBOARD_LABEL,
+      FILTER
     )
     debug(`Found ${newTopIssues.length} new top issues.`)
     debug(
@@ -137,7 +142,8 @@ async function run(): Promise<void> {
       bugIssues,
       TOP_LIST_SIZE,
       SUBTRACT_NEGATIVE,
-      DASHBOARD_LABEL
+      DASHBOARD_LABEL,
+      FILTER
     )
     debug(`Found ${newTopBugs.length} new top bugs.`)
     debug(
@@ -182,7 +188,8 @@ async function run(): Promise<void> {
       featureIssues,
       TOP_LIST_SIZE,
       SUBTRACT_NEGATIVE,
-      DASHBOARD_LABEL
+      DASHBOARD_LABEL,
+      FILTER
     )
     debug(`Found ${newTopFeatures.length} new top feature requests.`)
     debug(
@@ -221,7 +228,8 @@ async function run(): Promise<void> {
       PRs,
       TOP_LIST_SIZE,
       SUBTRACT_NEGATIVE,
-      DASHBOARD_LABEL
+      DASHBOARD_LABEL,
+      FILTER
     )
     debug(`Found ${newTopPRs.length} new top PRs.`)
     debug(

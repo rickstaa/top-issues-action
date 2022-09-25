@@ -36,7 +36,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createDashboard = exports.createDashboardMarkdown = exports.labelTopIssues = exports.getIssuesDifference = exports.initLabel = exports.getTopIssues = exports.addTotalReactions = exports.getReactionsCount = exports.issuesWithLabel = exports.fetchOpenPRs = exports.fetchOpenIssues = exports.getRepoInfo = exports.array2str = exports.str2bool = void 0;
+exports.createDashboard = exports.createDashboardMarkdown = exports.labelTopIssues = exports.getIssuesDifference = exports.initLabel = exports.getTopIssues = exports.addTotalReactions = exports.getReactionsCount = exports.issuesWithLabel = exports.fetchOpenPRs = exports.fetchOpenIssues = exports.getRepoInfo = exports.array2str = exports.getMultilineInput = void 0;
 /**
  * @file Contains action helper functions.
  */
@@ -45,12 +45,22 @@ const request_error_1 = __nccwpck_require__(537);
 const utils_1 = __nccwpck_require__(918);
 // == Methods ==
 /**
- * Convert a string to a boolean.
+ * Gets the values of an multiline input.  Each value is also trimmed.
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   string[]
+ *
  */
-const str2bool = (str) => {
-    return str.toLowerCase() === 'true';
-};
-exports.str2bool = str2bool;
+// TODO: Can be replaced with core.getMultilineInput when https://github.com/actions/toolkit/pull/1183 is released.
+function getMultilineInput(name, options) {
+    const inputs = (0, core_1.getInput)(name, options)
+        .split(/[[\]\n,]+/)
+        .map(s => s.trim())
+        .filter(x => x !== '');
+    return inputs;
+}
+exports.getMultilineInput = getMultilineInput;
 /**
  * Convert array to human readable comma separated string.
  * @param arr Input array.
@@ -59,6 +69,9 @@ exports.str2bool = str2bool;
 const array2str = (arr) => {
     if (arr.length === 0) {
         return '';
+    }
+    else if (arr.length === 1) {
+        return arr[0];
     }
     return `${arr.slice(0, arr.length - 1).join(', ')} and ${arr[arr.length - 1]}`;
 };
@@ -236,9 +249,12 @@ exports.addTotalReactions = addTotalReactions;
  * @param dashboardLabel The label used for the top issues dashboard.
  * @returns Top issues.
  */
-const getTopIssues = (issues, size, subtractNegative, dashboardLabel) => {
+const getTopIssues = (issues, size, subtractNegative, dashboardLabel, filter) => {
     let topIssues = (0, exports.addTotalReactions)(issues, subtractNegative);
     topIssues = topIssues.filter(issue => issue.labels.nodes.some(lab => lab.name !== dashboardLabel)); // Remove top issues dashboard issue
+    if (filter && filter.length > 0) {
+        topIssues = topIssues.filter(issue => !filter.includes(issue.number));
+    } // Filter issues
     topIssues = topIssues.filter(issue => issue.totalReactions > 0); // Remove issues with no reactions
     topIssues = topIssues.sort((a, b) => {
         return b.totalReactions - a.totalReactions;
@@ -566,31 +582,32 @@ const helpers_1 = __nccwpck_require__(5008);
 dotenv_1.default.config();
 // == Get action inputs ==
 const TOP_LIST_SIZE = parseInt((0, core_1.getInput)('top_list_size'));
-const SUBTRACT_NEGATIVE = (0, helpers_1.str2bool)((0, core_1.getInput)('subtract_negative'));
-const DRY_RUN = (0, helpers_1.str2bool)((0, core_1.getInput)('dry_run'));
-const LABEL = (0, helpers_1.str2bool)((0, core_1.getInput)('label'));
-const DASHBOARD = (0, helpers_1.str2bool)((0, core_1.getInput)('dashboard'));
-const DASHBOARD_SHOW_TOTAL_REACTIONS = (0, helpers_1.str2bool)((0, core_1.getInput)('dashboard_show_total_reactions'));
+const SUBTRACT_NEGATIVE = (0, core_1.getBooleanInput)('subtract_negative');
+const DRY_RUN = (0, core_1.getBooleanInput)('dry_run');
+const FILTER = (0, helpers_1.getMultilineInput)('filter').map(str => Number(str));
+const LABEL = (0, core_1.getBooleanInput)('label');
+const DASHBOARD = (0, core_1.getBooleanInput)('dashboard');
+const DASHBOARD_SHOW_TOTAL_REACTIONS = (0, core_1.getBooleanInput)('dashboard_show_total_reactions');
 const DASHBOARD_TITLE = (0, core_1.getInput)('dashboard_title');
 const DASHBOARD_LABEL = (0, core_1.getInput)('dashboard_label');
 const DASHBOARD_LABEL_DESCRIPTION = (0, core_1.getInput)('dashboard_label_description');
 const DASHBOARD_LABEL_COLOUR = (0, core_1.getInput)('dashboard_label_colour');
-const HIDE_DASHBOARD_FOOTER = (0, helpers_1.str2bool)((0, core_1.getInput)('hide_dashboard_footer'));
-const TOP_ISSUES = (0, helpers_1.str2bool)((0, core_1.getInput)('top_issues'));
+const HIDE_DASHBOARD_FOOTER = (0, core_1.getBooleanInput)('hide_dashboard_footer');
+const TOP_ISSUES = (0, core_1.getBooleanInput)('top_issues');
 const TOP_ISSUE_LABEL = (0, core_1.getInput)('top_issue_label');
 const TOP_ISSUE_LABEL_DESCRIPTION = (0, core_1.getInput)('top_issue_label_description');
 const TOP_ISSUE_LABEL_COLOUR = (0, core_1.getInput)('top_issue_label_colour');
-const TOP_BUGS = (0, helpers_1.str2bool)((0, core_1.getInput)('top_bugs'));
+const TOP_BUGS = (0, core_1.getBooleanInput)('top_bugs');
 const BUG_LABEL = (0, core_1.getInput)('bug_label');
 const TOP_BUG_LABEL = (0, core_1.getInput)('top_bug_label');
 const TOP_BUG_LABEL_DESCRIPTION = (0, core_1.getInput)('top_bug_label_description');
 const TOP_BUG_LABEL_COLOUR = (0, core_1.getInput)('top_bug_label_colour');
-const TOP_FEATURES = (0, helpers_1.str2bool)((0, core_1.getInput)('top_features'));
+const TOP_FEATURES = (0, core_1.getBooleanInput)('top_features');
 const FEATURE_LABEL = (0, core_1.getInput)('feature_label');
 const TOP_FEATURE_LABEL = (0, core_1.getInput)('top_feature_label');
 const TOP_FEATURE_LABEL_DESCRIPTION = (0, core_1.getInput)('top_feature_label_description');
 const TOP_FEATURE_LABEL_COLOUR = (0, core_1.getInput)('top_feature_label_colour');
-const TOP_PULL_REQUESTS = (0, helpers_1.str2bool)((0, core_1.getInput)('top_pull_requests'));
+const TOP_PULL_REQUESTS = (0, core_1.getBooleanInput)('top_pull_requests');
 const TOP_PULL_REQUEST_LABEL = (0, core_1.getInput)('top_pull_request_label');
 const TOP_PULL_REQUEST_LABEL_DESCRIPTION = (0, core_1.getInput)('top_pull_request_label_description');
 const TOP_PULL_REQUEST_LABEL_COLOUR = (0, core_1.getInput)('top_pull_request_label_colour');
@@ -603,6 +620,9 @@ function run() {
         const { owner, repo } = (0, helpers_1.getRepoInfo)(github_1.context);
         (0, core_1.debug)(`Repo: ${repo}, Owner: ${owner}.`);
         (0, core_1.debug)('Fetching open Issues...');
+        if (FILTER.length > 0) {
+            (0, core_1.debug)(`Filtered issues: ${(0, helpers_1.array2str)(FILTER.map(num => String(num)))}.`);
+        }
         const issues = yield (0, helpers_1.fetchOpenIssues)(owner, repo);
         (0, core_1.debug)(`Found ${issues.length} open issues.`);
         (0, core_1.debug)('Fetching open PRs...');
@@ -621,7 +641,7 @@ function run() {
             (0, core_1.debug)(`Found ${oldTopIssues.length} old top issues.`);
             (0, core_1.debug)(`Old top issues: ${(0, helpers_1.array2str)(oldTopIssues.map(issue => issue.number.toString()))}.`);
             (0, core_1.debug)(`Getting new top issues...`);
-            newTopIssues = (0, helpers_1.getTopIssues)(issues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE, DASHBOARD_LABEL);
+            newTopIssues = (0, helpers_1.getTopIssues)(issues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE, DASHBOARD_LABEL, FILTER);
             (0, core_1.debug)(`Found ${newTopIssues.length} new top issues.`);
             (0, core_1.debug)(`New top issues: ${(0, helpers_1.array2str)(newTopIssues.map(issue => issue.number.toString()))}.`);
             if (LABEL) {
@@ -645,7 +665,7 @@ function run() {
             (0, core_1.debug)(`Found ${oldTopBugs.length} old top bugs.`);
             (0, core_1.debug)(`Old top bugs: ${(0, helpers_1.array2str)(oldTopBugs.map(bug => bug.number.toString()))}.`);
             (0, core_1.debug)(`Getting new top bugs...`);
-            newTopBugs = (0, helpers_1.getTopIssues)(bugIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE, DASHBOARD_LABEL);
+            newTopBugs = (0, helpers_1.getTopIssues)(bugIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE, DASHBOARD_LABEL, FILTER);
             (0, core_1.debug)(`Found ${newTopBugs.length} new top bugs.`);
             (0, core_1.debug)(`New top bugs: ${(0, helpers_1.array2str)(newTopBugs.map(bug => bug.number.toString()))}.`);
             if (LABEL) {
@@ -669,7 +689,7 @@ function run() {
             (0, core_1.debug)(`Found ${oldTopFeatures.length} old top feature requests.`);
             (0, core_1.debug)(`Old top feature requests: ${(0, helpers_1.array2str)(oldTopFeatures.map(feature => feature.number.toString()))}.`);
             (0, core_1.debug)(`Getting new top feature requests...`);
-            newTopFeatures = (0, helpers_1.getTopIssues)(featureIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE, DASHBOARD_LABEL);
+            newTopFeatures = (0, helpers_1.getTopIssues)(featureIssues, TOP_LIST_SIZE, SUBTRACT_NEGATIVE, DASHBOARD_LABEL, FILTER);
             (0, core_1.debug)(`Found ${newTopFeatures.length} new top feature requests.`);
             (0, core_1.debug)(`New top feature requests: ${(0, helpers_1.array2str)(newTopFeatures.map(feature => feature.number.toString()))}.`);
             if (LABEL) {
@@ -689,7 +709,7 @@ function run() {
             const oldTopPRs = (0, helpers_1.issuesWithLabel)(PRs, TOP_PULL_REQUEST_LABEL);
             (0, core_1.debug)(`Found ${oldTopPRs.length} old top PRs.`);
             (0, core_1.debug)(`Getting new top PRs...`);
-            newTopPRs = (0, helpers_1.getTopIssues)(PRs, TOP_LIST_SIZE, SUBTRACT_NEGATIVE, DASHBOARD_LABEL);
+            newTopPRs = (0, helpers_1.getTopIssues)(PRs, TOP_LIST_SIZE, SUBTRACT_NEGATIVE, DASHBOARD_LABEL, FILTER);
             (0, core_1.debug)(`Found ${newTopPRs.length} new top PRs.`);
             (0, core_1.debug)(`New top PRs: ${(0, helpers_1.array2str)(newTopPRs.map(PR => PR.number.toString()))}.`);
             if (LABEL) {

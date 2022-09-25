@@ -1,7 +1,7 @@
 /**
  * @file Contains action helper functions.
  */
-import {setFailed} from '@actions/core'
+import {getInput, InputOptions, setFailed} from '@actions/core'
 import {context} from '@actions/github'
 import {RequestError} from '@octokit/request-error'
 import type {IssueNode, TopIssueNode} from './types'
@@ -67,10 +67,24 @@ interface PRsResponse {
 // == Methods ==
 
 /**
- * Convert a string to a boolean.
+ * Gets the values of an multiline input.  Each value is also trimmed.
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   string[]
+ *
  */
-export const str2bool = (str: string): boolean => {
-  return str.toLowerCase() === 'true'
+// TODO: Can be replaced with core.getMultilineInput when https://github.com/actions/toolkit/pull/1183 is released.
+export function getMultilineInput(
+  name: string,
+  options?: InputOptions
+): string[] {
+  const inputs: string[] = getInput(name, options)
+    .split(/[[\]\n,]+/)
+    .map(s => s.trim())
+    .filter(x => x !== '')
+
+  return inputs
 }
 
 /**
@@ -81,6 +95,8 @@ export const str2bool = (str: string): boolean => {
 export const array2str = (arr: string[]): string => {
   if (arr.length === 0) {
     return ''
+  } else if (arr.length === 1) {
+    return arr[0]
   }
   return `${arr.slice(0, arr.length - 1).join(', ')} and ${arr[arr.length - 1]}`
 }
@@ -286,12 +302,16 @@ export const getTopIssues = (
   issues: IssueNode[],
   size: number,
   subtractNegative: boolean,
-  dashboardLabel: string
+  dashboardLabel: string,
+  filter?: number[]
 ): TopIssueNode[] => {
   let topIssues: TopIssueNode[] = addTotalReactions(issues, subtractNegative)
   topIssues = topIssues.filter(issue =>
     issue.labels.nodes.some(lab => lab.name !== dashboardLabel)
   ) // Remove top issues dashboard issue
+  if (filter && filter.length > 0) {
+    topIssues = topIssues.filter(issue => !filter.includes(issue.number))
+  } // Filter issues
   topIssues = topIssues.filter(issue => issue.totalReactions > 0) // Remove issues with no reactions
   topIssues = topIssues.sort((a: TopIssueNode, b: TopIssueNode) => {
     return b.totalReactions - a.totalReactions

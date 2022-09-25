@@ -19,6 +19,10 @@ inputs:
     required: false
     description: 'Run the action without actually creating the labels and dashboard.'
     default: 'false'
+  filter:
+    required: false
+    description: 'A comma or newline-separated list of issues you want to exclude.'
+    default: ''
   label:
     required: false
     description: 'Label top issues.'
