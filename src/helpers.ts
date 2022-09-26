@@ -100,6 +100,7 @@ export const array2str = (arr: string[]): string => {
   }
   return `${arr.slice(0, arr.length - 1).join(', ')} and ${arr[arr.length - 1]}`
 }
+
 /**
  * Retrieve information about the repository that ran the action.
  * @param context Action context.
