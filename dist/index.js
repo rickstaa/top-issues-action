@@ -251,7 +251,8 @@ exports.addTotalReactions = addTotalReactions;
  */
 const getTopIssues = (issues, size, subtractNegative, dashboardLabel, filter) => {
     let topIssues = (0, exports.addTotalReactions)(issues, subtractNegative);
-    topIssues = topIssues.filter(issue => issue.labels.nodes.some(lab => lab.name !== dashboardLabel)); // Remove top issues dashboard issue
+    topIssues = topIssues.filter(issue => issue.labels.nodes.length === 0 ||
+        issue.labels.nodes.some(lab => lab.name !== dashboardLabel)); // Remove top issues dashboard issue
     if (filter && filter.length > 0) {
         topIssues = topIssues.filter(issue => !filter.includes(issue.number));
     } // Filter issues

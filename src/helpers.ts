@@ -9,9 +9,6 @@ import {octokit} from './utils'
 
 export type GithubContext = typeof context
 
-// Script parameters
-const MAX_ISSUE_ITEM_LENGTH = 10
-
 // == Types ==
 
 /**
