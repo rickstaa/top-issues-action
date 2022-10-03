@@ -9,6 +9,9 @@ import {octokit} from './utils'
 
 export type GithubContext = typeof context
 
+// Script parameters
+const MAX_ISSUE_ITEM_LENGTH = 10
+
 // == Types ==
 
 /**
@@ -307,8 +310,10 @@ export const getTopIssues = (
   filter?: number[]
 ): TopIssueNode[] => {
   let topIssues: TopIssueNode[] = addTotalReactions(issues, subtractNegative)
-  topIssues = topIssues.filter(issue =>
-    issue.labels.nodes.some(lab => lab.name !== dashboardLabel)
+  topIssues = topIssues.filter(
+    issue =>
+      issue.labels.nodes.length === 0 ||
+      issue.labels.nodes.some(lab => lab.name !== dashboardLabel)
   ) // Remove top issues dashboard issue
   if (filter && filter.length > 0) {
     topIssues = topIssues.filter(issue => !filter.includes(issue.number))
