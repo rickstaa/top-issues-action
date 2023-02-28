@@ -16,6 +16,7 @@ jobs:
       - name: Build GitHub action
         env:
           INPUT_GITHUB_TOKEN: ${{ secrets.github_token }}
+          INPUT_DRY_RUN: true
         run: |
           npm run all
   test: # make sure the action works on a clean machine without building
