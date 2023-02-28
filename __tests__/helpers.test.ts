@@ -30,7 +30,7 @@ jest.mock('@actions/github')
  * @returns The dashboard markdown body without the timestamp.
  */
 const removeDashboardTimeStamp = (str: string): string => {
-  return str.replace(/ \((last update:[/0-9 , :A-Z]*)\)./, '.')
+  return str.replace(/\s*\(last update: [\/0-9]*, [:0-9]*.*[PAM]*\)/, '')
 }
 
 // == Test Objects ==
