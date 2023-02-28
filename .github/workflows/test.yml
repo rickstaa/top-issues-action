@@ -15,7 +15,7 @@ jobs:
           npm install
       - name: Build GitHub action
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          INPUT_GITHUB_TOKEN: ${{ secrets.github_token }}
         run: |
           npm run all
   test: # make sure the action works on a clean machine without building
