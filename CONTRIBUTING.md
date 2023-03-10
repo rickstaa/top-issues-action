@@ -30,18 +30,18 @@ In short, when you submit code changes, your submissions are understood to be un
 
 ## Report bugs using Github's [issues](https://github.com/rickstaa/top-issues-action/issues)
 
-[This is an example](http://stackoverflow.com/q/12488905/180626) of a bug report, and I think it's a good model. Here's [another example from Craig Hockenberry](http://www.openradar.me/11905408), an app developer greatly respected in the community.
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/ickstaa/top-issues-action/issues/new/choose); it's that easy!
 
 ## Write bug reports with detail, background, and sample code
 
-[This is an example](http://stackoverflow.com/q/12488905/180626) of a bug report I wrote, and I think it's not a bad model. Here's [another example from Craig Hockenberry](http://www.openradar.me/11905408), an app developer whom I greatly respect.
+[This is an example](http://stackoverflow.com/q/12488905/180626) of a bug report, and I think it's a good model. Here's [another example from Craig Hockenberry](http://www.openradar.me/11905408), an app developer greatly respected in the community.
 
 **Great Bug Reports** tend to have:
 
 - A quick summary and/or background.
 - Steps to reproduce:
   - Be specific!
-  - Give sample code if you can. [My stackoverflow question](http://stackoverflow.com/q/12488905/180626) includes sample code that _anyone_ with a base R setup can run to reproduce the error.
+  - Give sample code if you can. [A stackoverflow question](http://stackoverflow.com/q/12488905/180626) includes sample code that _anyone_ with a base R setup can run to reproduce the error.
 - What you expected would happen
 - What actually happens.
 - Notes (possibly including why you think this might be happening, or stuff you tried that didn't work).
