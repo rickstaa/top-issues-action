@@ -549,6 +549,10 @@ export const labelTopIssues = async (
  * @param topBugs Top bugs.
  * @param topFeatures Top features.
  * @param newTopPRs Top pull requests.
+ * @param newTopCustom Top custom.
+ * @param newTopCustomLabel Top custom label.
+ * @param newTopCustom Top custom PRs.
+ * @param newTopCustomLabel Top custom PRs label.
  * @param header Header of the dashboard.
  * @param footer Footer of the dashboard.
  * @param showTotalReactions Whether to show the total number of positive reactions after each dashboard item.
@@ -559,6 +563,10 @@ export const createDashboardMarkdown = (
   topBugs: TopIssueNode[],
   topFeatures: TopIssueNode[],
   topPRs: TopIssueNode[],
+  topCustom: TopIssueNode[],
+  topCustomLabel: string,
+  topCustomPRs: TopIssueNode[],
+  topCustomPRsLabel: string,
   header: string,
   footer: string,
   showTotalReactions: boolean
@@ -602,6 +610,26 @@ export const createDashboardMarkdown = (
         showTotalReactions
           ? `${idx + 1}. #${PR.number} :+1:\`${PR.totalReactions}\``
           : `${idx + 1}. #${PR.number}`
+      )
+      .join('\n')}`
+  }
+  if (topCustom.length > 0) {
+    dashboard_issues_body += `\n\n## Top '${topCustomLabel}' issues\n`
+    dashboard_issues_body += `\n${topCustom
+      .map((issue, idx) =>
+        showTotalReactions
+          ? `${idx + 1}. #${issue.number} :+1:\`${issue.totalReactions}\``
+          : `${idx + 1}. #${issue.number}`
+      )
+      .join('\n')}`
+  }
+  if (topCustomPRs.length > 0) {
+    dashboard_issues_body += `\n\n## Top '${topCustomPRsLabel}' pull requests\n`
+    dashboard_issues_body += `\n${topCustomPRs
+      .map((issue, idx) =>
+        showTotalReactions
+          ? `${idx + 1}. #${issue.number} :+1:\`${issue.totalReactions}\``
+          : `${idx + 1}. #${issue.number}`
       )
       .join('\n')}`
   }

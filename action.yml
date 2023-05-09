@@ -115,14 +115,14 @@ inputs:
     required: false
     description: 'The colour used for the top feature request label.'
     default: '#0E8A16'
-  # Top pull request related inputs.
+  # Top pull requests related inputs.
   top_pull_requests:
     required: false
     description: 'Display top pull requests.'
     default: 'false'
   top_pull_request_label:
     required: false
-    description: 'The label used for labelling  top pull request.'
+    description: 'The label used for labelling top pull request.'
     default: ':star: top pull request'
   top_pull_request_label_description:
     required: false
@@ -132,6 +132,40 @@ inputs:
     required: false
     description: 'The colour used for the top pull request label.'
     default: '#41A285'
+  # Top custom issues related inputs.
+  custom_label:
+    required: false
+    description: 'The label that is used for custom issues.'
+    default: ''
+  top_custom_label:
+    required: false
+    description: 'The label used for labelling top custom issues.'
+    default: ''
+  top_custom_label_description:
+    required: false
+    description: 'The description used for the top custom issues.'
+    default: ''
+  top_custom_label_colour:
+    required: false
+    description: 'The colour used for the top custom issues.'
+    default: ''
+  # Top custom pull requests related inputs.
+  custom_pull_requests_label:
+    required: false
+    description: 'The label that is used for custom pull requests.'
+    default: ''
+  top_custom_pull_requests_label:
+    required: false
+    description: 'The label used for labelling top custom pull requests.'
+    default: ''
+  top_custom_pull_requests_label_description:
+    required: false
+    description: 'The description used for the top custom pull requests.'
+    default: ''
+  top_custom_pull_requests_label_colour:
+    required: false
+    description: 'The colour used for the top custom pull requests.'
+    default: ''
 branding:
   color: 'blue'
   icon: 'arrow-up'

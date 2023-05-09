@@ -56,6 +56,20 @@ const TOP_PULL_REQUEST_LABEL_DESCRIPTION = getInput(
   'top_pull_request_label_description'
 )
 const TOP_PULL_REQUEST_LABEL_COLOUR = getInput('top_pull_request_label_colour')
+const CUSTOM_LABEL = getInput('custom_label')
+const TOP_CUSTOM_LABEL = getInput('top_custom_label')
+const TOP_CUSTOM_LABEL_DESCRIPTION = getInput('top_custom_label_description')
+const TOP_CUSTOM_LABEL_COLOUR = getInput('top_custom_label_colour')
+const CUSTOM_PRS_LABEL = getInput('custom_pull_requests_label')
+const TOP_CUSTOM_PULL_REQUESTS_LABEL = getInput(
+  'top_custom_pull_requests_label'
+)
+const TOP_CUSTOM_PULL_REQUESTS_LABEL_DESCRIPTION = getInput(
+  'top_custom_pull_requests_label_description'
+)
+const TOP_CUSTOM_PULL_REQUESTS_LABEL_COLOUR = getInput(
+  'top_custom_pull_requests_label_colour'
+)
 
 /**
  * Main function.
@@ -253,6 +267,106 @@ async function run(): Promise<void> {
     }
   }
 
+  // Retrieve and label top custom.
+  let newTopCustom: TopIssueNode[] = []
+  if (CUSTOM_LABEL) {
+    debug(`Getting issues with '${CUSTOM_LABEL}' label...`)
+    const customIssues = issuesWithLabel(issues, CUSTOM_LABEL)
+    debug(`Found ${customIssues.length} '${CUSTOM_LABEL}' issues.`)
+    debug(`Getting old top '${CUSTOM_LABEL}' issues...`)
+    const oldTopCustom = issuesWithLabel(issues, TOP_CUSTOM_LABEL)
+    debug(`Found ${oldTopCustom.length} old '${CUSTOM_LABEL}' issues.`)
+    debug(
+      `Old top '${CUSTOM_LABEL}' issues: ${array2str(
+        oldTopCustom.map(issue => issue.number.toString())
+      )}.`
+    )
+    debug(`Getting new top '${CUSTOM_LABEL}' issues...`)
+    newTopCustom = getTopIssues(
+      customIssues,
+      TOP_LIST_SIZE,
+      SUBTRACT_NEGATIVE,
+      DASHBOARD_LABEL,
+      FILTER
+    )
+    debug(`Found ${newTopCustom.length} new top '${CUSTOM_LABEL}' issues.`)
+    debug(
+      `New top '${CUSTOM_LABEL}' issues: ${array2str(
+        newTopCustom.map(issue => issue.number.toString())
+      )}.`
+    )
+    if (LABEL) {
+      debug(`Labeling top '${CUSTOM_LABEL}' issues...`)
+      if (!DRY_RUN) {
+        await labelTopIssues(
+          owner,
+          repo,
+          oldTopCustom,
+          newTopCustom,
+          TOP_CUSTOM_LABEL,
+          TOP_CUSTOM_LABEL_DESCRIPTION,
+          TOP_CUSTOM_LABEL_COLOUR
+        )
+      } else {
+        warning(
+          'DRY_RUN is enabled, skipping labeling of top feature requests.'
+        )
+      }
+    }
+  }
+
+  // Retrieve and label top custom PRs.
+  let newTopCustomPRs: TopIssueNode[] = []
+  if (CUSTOM_PRS_LABEL) {
+    debug(`Getting pull requests with '${CUSTOM_PRS_LABEL}' label...`)
+    const customPRs = issuesWithLabel(PRs, CUSTOM_PRS_LABEL)
+    debug(`Found ${customPRs.length} '${CUSTOM_PRS_LABEL}' pull requests.`)
+    debug(`Getting old top '${CUSTOM_PRS_LABEL}' pull requests...`)
+    const oldTopCustomPRs = issuesWithLabel(PRs, TOP_CUSTOM_PULL_REQUESTS_LABEL)
+    debug(
+      `Found ${oldTopCustomPRs.length} old '${CUSTOM_PRS_LABEL}' pull requests.`
+    )
+    debug(
+      `Old top feature requests: ${array2str(
+        oldTopCustomPRs.map(pr => pr.number.toString())
+      )}.`
+    )
+    debug(`Getting new top '${CUSTOM_PRS_LABEL}' pull requests...`)
+    newTopCustomPRs = getTopIssues(
+      customPRs,
+      TOP_LIST_SIZE,
+      SUBTRACT_NEGATIVE,
+      DASHBOARD_LABEL,
+      FILTER
+    )
+    debug(
+      `Found ${newTopCustomPRs.length} new top '${CUSTOM_PRS_LABEL}' pull requests.`
+    )
+    debug(
+      `New top '${CUSTOM_PRS_LABEL}' pull requests: ${array2str(
+        newTopCustomPRs.map(pr => pr.number.toString())
+      )}.`
+    )
+    if (LABEL) {
+      debug(`Labeling top '${CUSTOM_PRS_LABEL}' pull requests...`)
+      if (!DRY_RUN) {
+        await labelTopIssues(
+          owner,
+          repo,
+          oldTopCustomPRs,
+          newTopCustomPRs,
+          TOP_CUSTOM_PULL_REQUESTS_LABEL,
+          TOP_CUSTOM_PULL_REQUESTS_LABEL_DESCRIPTION,
+          TOP_CUSTOM_PULL_REQUESTS_LABEL_COLOUR
+        )
+      } else {
+        warning(
+          'DRY_RUN is enabled, skipping labeling of top feature requests.'
+        )
+      }
+    }
+  }
+
   // Create top issues dashboard.
   if (DASHBOARD) {
     debug('Creating dashboard markdown...')
@@ -261,6 +375,10 @@ async function run(): Promise<void> {
       newTopBugs,
       newTopFeatures,
       newTopPRs,
+      newTopCustom,
+      CUSTOM_LABEL,
+      newTopCustomPRs,
+      CUSTOM_PRS_LABEL,
       DASHBOARD_HEADER,
       !HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : '',
       DASHBOARD_SHOW_TOTAL_REACTIONS

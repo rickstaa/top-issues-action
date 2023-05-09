@@ -153,6 +153,15 @@ A simple dashboard that lists the top issues/bugs/features and pull requests.
 
 1. #5
 
+## Top 'ci' issues
+
+1. #5
+
+## Top 'themes' pull requests
+
+1. #1
+2. #5
+
 > Created by the [rickstaa/top-issues-action](https://github.com/rickstaa/top-issues-action) action (last update: 10/08/2022, 12:25:50).`
 
 const fullIssuesReactionCountDashboard = `<!--
@@ -178,6 +187,15 @@ A simple dashboard that lists the top issues/bugs/features and pull requests.
 ## Top PRs
 
 1. #5 :+1:\`1\`
+
+## Top 'ci' issues
+
+1. #5 :+1:\`1\`
+
+## Top 'themes' pull requests
+
+1. #1 :+1:\`2\`
+2. #5 :+1:\`1\`
 
 > Created by the [rickstaa/top-issues-action](https://github.com/rickstaa/top-issues-action) action (last update: 10/08/2022, 12:27:08).`
 
@@ -350,6 +368,10 @@ describe('createDashboardMarkdown', () => {
       [],
       [],
       [],
+      [],
+      '',
+      [],
+      '',
       DASHBOARD_HEADER,
       DASHBOARD_FOOTER,
       false
@@ -365,6 +387,10 @@ describe('createDashboardMarkdown', () => {
       [],
       [],
       [],
+      [],
+      '',
+      [],
+      '',
       DASHBOARD_HEADER,
       '',
       false
@@ -381,6 +407,10 @@ describe('createDashboardMarkdown', () => {
       topDummyIssues.slice(1, 2),
       topDummyIssues.slice(1, 3),
       topDummyIssues.slice(2, 3),
+      topDummyIssues.slice(2, 3),
+      'ci',
+      topDummyIssues.slice(1, 3),
+      'themes',
       DASHBOARD_HEADER,
       DASHBOARD_FOOTER,
       false
@@ -397,6 +427,10 @@ describe('createDashboardMarkdown', () => {
       topDummyIssues.slice(1, 2),
       topDummyIssues.slice(1, 3),
       topDummyIssues.slice(2, 3),
+      topDummyIssues.slice(2, 3),
+      'ci',
+      topDummyIssues.slice(1, 3),
+      'themes',
       DASHBOARD_HEADER,
       DASHBOARD_FOOTER,
       true
