@@ -60,7 +60,7 @@ const CUSTOM_LABEL = getInput('custom_label')
 const TOP_CUSTOM_LABEL = getInput('top_custom_label')
 const TOP_CUSTOM_LABEL_DESCRIPTION = getInput('top_custom_label_description')
 const TOP_CUSTOM_LABEL_COLOUR = getInput('top_custom_label_colour')
-const CUSTOM_PRS_LABEL = getInput('custom_pull_requests_label')
+const CUSTOM_PULL_REQUESTS_LABEL = getInput('custom_pull_requests_label')
 const TOP_CUSTOM_PULL_REQUESTS_LABEL = getInput(
   'top_custom_pull_requests_label'
 )
@@ -317,21 +317,23 @@ async function run(): Promise<void> {
 
   // Retrieve and label top custom PRs.
   let newTopCustomPRs: TopIssueNode[] = []
-  if (CUSTOM_PRS_LABEL) {
-    debug(`Getting pull requests with '${CUSTOM_PRS_LABEL}' label...`)
-    const customPRs = issuesWithLabel(PRs, CUSTOM_PRS_LABEL)
-    debug(`Found ${customPRs.length} '${CUSTOM_PRS_LABEL}' pull requests.`)
-    debug(`Getting old top '${CUSTOM_PRS_LABEL}' pull requests...`)
+  if (CUSTOM_PULL_REQUESTS_LABEL) {
+    debug(`Getting pull requests with '${CUSTOM_PULL_REQUESTS_LABEL}' label...`)
+    const customPRs = issuesWithLabel(PRs, CUSTOM_PULL_REQUESTS_LABEL)
+    debug(
+      `Found ${customPRs.length} '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests.`
+    )
+    debug(`Getting old top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests...`)
     const oldTopCustomPRs = issuesWithLabel(PRs, TOP_CUSTOM_PULL_REQUESTS_LABEL)
     debug(
-      `Found ${oldTopCustomPRs.length} old '${CUSTOM_PRS_LABEL}' pull requests.`
+      `Found ${oldTopCustomPRs.length} old '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests.`
     )
     debug(
       `Old top feature requests: ${array2str(
         oldTopCustomPRs.map(pr => pr.number.toString())
       )}.`
     )
-    debug(`Getting new top '${CUSTOM_PRS_LABEL}' pull requests...`)
+    debug(`Getting new top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests...`)
     newTopCustomPRs = getTopIssues(
       customPRs,
       TOP_LIST_SIZE,
@@ -340,15 +342,15 @@ async function run(): Promise<void> {
       FILTER
     )
     debug(
-      `Found ${newTopCustomPRs.length} new top '${CUSTOM_PRS_LABEL}' pull requests.`
+      `Found ${newTopCustomPRs.length} new top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests.`
     )
     debug(
-      `New top '${CUSTOM_PRS_LABEL}' pull requests: ${array2str(
+      `New top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests: ${array2str(
         newTopCustomPRs.map(pr => pr.number.toString())
       )}.`
     )
     if (LABEL) {
-      debug(`Labeling top '${CUSTOM_PRS_LABEL}' pull requests...`)
+      debug(`Labeling top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests...`)
       if (!DRY_RUN) {
         await labelTopIssues(
           owner,
@@ -378,7 +380,7 @@ async function run(): Promise<void> {
       newTopCustom,
       CUSTOM_LABEL,
       newTopCustomPRs,
-      CUSTOM_PRS_LABEL,
+      CUSTOM_PULL_REQUESTS_LABEL,
       DASHBOARD_HEADER,
       !HIDE_DASHBOARD_FOOTER ? DASHBOARD_FOOTER : '',
       DASHBOARD_SHOW_TOTAL_REACTIONS

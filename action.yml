@@ -165,7 +165,7 @@ inputs:
   top_custom_pull_requests_label_colour:
     required: false
     description: 'The colour used for the top custom pull requests.'
-    default: ''
+    default: '#A23599'
 branding:
   color: 'blue'
   icon: 'arrow-up'

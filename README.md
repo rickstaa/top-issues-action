@@ -91,7 +91,7 @@ Various inputs are defined in [action.yml](action.yml) to let you configure the 
 | `custom_pull_requests_label`                 | The label that is used for custom pull requests.                                                  | `""`                        |
 | `top_custom_pull_requests_label`             | The label used for labelling top custom pull requests.                                            | `""`                        |
 | `top_custom_pull_requests_label_description` | The description used for the top custom pull requests.                                            | `""`                        |
-| `top_custom_pull_requests_label_colour`      | The colour used for the top custom pull requests.                                                 | `""`                        |
+| `top_custom_pull_requests_label_colour`      | The colour used for the top custom pull requests.                                                 |`"A23599"`                   |
 
 ### Outputs
 
