@@ -636,7 +636,7 @@ const CUSTOM_LABEL = (0, core_1.getInput)('custom_label');
 const TOP_CUSTOM_LABEL = (0, core_1.getInput)('top_custom_label');
 const TOP_CUSTOM_LABEL_DESCRIPTION = (0, core_1.getInput)('top_custom_label_description');
 const TOP_CUSTOM_LABEL_COLOUR = (0, core_1.getInput)('top_custom_label_colour');
-const CUSTOM_PRS_LABEL = (0, core_1.getInput)('custom_pull_requests_label');
+const CUSTOM_PULL_REQUESTS_LABEL = (0, core_1.getInput)('custom_pull_requests_label');
 const TOP_CUSTOM_PULL_REQUESTS_LABEL = (0, core_1.getInput)('top_custom_pull_requests_label');
 const TOP_CUSTOM_PULL_REQUESTS_LABEL_DESCRIPTION = (0, core_1.getInput)('top_custom_pull_requests_label_description');
 const TOP_CUSTOM_PULL_REQUESTS_LABEL_COLOUR = (0, core_1.getInput)('top_custom_pull_requests_label_colour');
@@ -777,20 +777,20 @@ function run() {
         }
         // Retrieve and label top custom PRs.
         let newTopCustomPRs = [];
-        if (CUSTOM_PRS_LABEL) {
-            (0, core_1.debug)(`Getting pull requests with '${CUSTOM_PRS_LABEL}' label...`);
-            const customPRs = (0, helpers_1.issuesWithLabel)(PRs, CUSTOM_PRS_LABEL);
-            (0, core_1.debug)(`Found ${customPRs.length} '${CUSTOM_PRS_LABEL}' pull requests.`);
-            (0, core_1.debug)(`Getting old top '${CUSTOM_PRS_LABEL}' pull requests...`);
+        if (CUSTOM_PULL_REQUESTS_LABEL) {
+            (0, core_1.debug)(`Getting pull requests with '${CUSTOM_PULL_REQUESTS_LABEL}' label...`);
+            const customPRs = (0, helpers_1.issuesWithLabel)(PRs, CUSTOM_PULL_REQUESTS_LABEL);
+            (0, core_1.debug)(`Found ${customPRs.length} '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests.`);
+            (0, core_1.debug)(`Getting old top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests...`);
             const oldTopCustomPRs = (0, helpers_1.issuesWithLabel)(PRs, TOP_CUSTOM_PULL_REQUESTS_LABEL);
-            (0, core_1.debug)(`Found ${oldTopCustomPRs.length} old '${CUSTOM_PRS_LABEL}' pull requests.`);
+            (0, core_1.debug)(`Found ${oldTopCustomPRs.length} old '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests.`);
             (0, core_1.debug)(`Old top feature requests: ${(0, helpers_1.array2str)(oldTopCustomPRs.map(pr => pr.number.toString()))}.`);
-            (0, core_1.debug)(`Getting new top '${CUSTOM_PRS_LABEL}' pull requests...`);
+            (0, core_1.debug)(`Getting new top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests...`);
             newTopCustomPRs = (0, helpers_1.getTopIssues)(customPRs, TOP_LIST_SIZE, SUBTRACT_NEGATIVE, DASHBOARD_LABEL, FILTER);
-            (0, core_1.debug)(`Found ${newTopCustomPRs.length} new top '${CUSTOM_PRS_LABEL}' pull requests.`);
-            (0, core_1.debug)(`New top '${CUSTOM_PRS_LABEL}' pull requests: ${(0, helpers_1.array2str)(newTopCustomPRs.map(pr => pr.number.toString()))}.`);
+            (0, core_1.debug)(`Found ${newTopCustomPRs.length} new top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests.`);
+            (0, core_1.debug)(`New top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests: ${(0, helpers_1.array2str)(newTopCustomPRs.map(pr => pr.number.toString()))}.`);
             if (LABEL) {
-                (0, core_1.debug)(`Labeling top '${CUSTOM_PRS_LABEL}' pull requests...`);
+                (0, core_1.debug)(`Labeling top '${CUSTOM_PULL_REQUESTS_LABEL}' pull requests...`);
                 if (!DRY_RUN) {
                     yield (0, helpers_1.labelTopIssues)(owner, repo, oldTopCustomPRs, newTopCustomPRs, TOP_CUSTOM_PULL_REQUESTS_LABEL, TOP_CUSTOM_PULL_REQUESTS_LABEL_DESCRIPTION, TOP_CUSTOM_PULL_REQUESTS_LABEL_COLOUR);
                 }
@@ -802,7 +802,7 @@ function run() {
         // Create top issues dashboard.
         if (DASHBOARD) {
             (0, core_1.debug)('Creating dashboard markdown...');
-            const dashboard_body = (0, helpers_1.createDashboardMarkdown)(newTopIssues, newTopBugs, newTopFeatures, newTopPRs, newTopCustom, CUSTOM_LABEL, newTopCustomPRs, CUSTOM_PRS_LABEL, constants_1.DASHBOARD_HEADER, !HIDE_DASHBOARD_FOOTER ? constants_1.DASHBOARD_FOOTER : '', DASHBOARD_SHOW_TOTAL_REACTIONS);
+            const dashboard_body = (0, helpers_1.createDashboardMarkdown)(newTopIssues, newTopBugs, newTopFeatures, newTopPRs, newTopCustom, CUSTOM_LABEL, newTopCustomPRs, CUSTOM_PULL_REQUESTS_LABEL, constants_1.DASHBOARD_HEADER, !HIDE_DASHBOARD_FOOTER ? constants_1.DASHBOARD_FOOTER : '', DASHBOARD_SHOW_TOTAL_REACTIONS);
             DRY_RUN
                 ? (0, core_1.info)(`Dashboard body: ${dashboard_body}.`)
                 : (0, core_1.debug)(`Dashboard body: ${dashboard_body}.`);
