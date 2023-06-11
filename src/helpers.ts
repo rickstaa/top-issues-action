@@ -624,7 +624,7 @@ export const createDashboardMarkdown = (
       .join('\n')}`
   }
   if (topCustomPRs.length > 0) {
-    dashboard_issues_body += `\n\n## Top '${topCustomPRsLabel}' pull requests <a href="#top-${topCustomPRsLabel}" id="top-${topCustomPRsLabel}"/>\n`
+    dashboard_issues_body += `\n\n## Top '${topCustomPRsLabel}' pull requests <a href="#top-${topCustomPRsLabel}-prs" id="top-${topCustomPRsLabel}-prs"/>\n`
     dashboard_issues_body += `\n${topCustomPRs
       .map((issue, idx) =>
         showTotalReactions
