@@ -574,7 +574,7 @@ export const createDashboardMarkdown = (
   let dashboard_body = `${header}`
   let dashboard_issues_body = ``
   if (topIssues.length > 0) {
-    dashboard_issues_body += `\n\n## Top issues\n`
+    dashboard_issues_body += `\n\n## Top issues <a href="#top-issues" id="top-issues"/>\n`
     dashboard_issues_body += `\n${topIssues
       .map((issue, idx) =>
         showTotalReactions
@@ -584,7 +584,7 @@ export const createDashboardMarkdown = (
       .join('\n')}`
   }
   if (topBugs.length > 0) {
-    dashboard_issues_body += `\n\n## Top bugs\n`
+    dashboard_issues_body += `\n\n## Top bugs <a href="#top-bugs" id="top-bugs"/>\n`
     dashboard_issues_body += `\n${topBugs
       .map((bug, idx) =>
         showTotalReactions
@@ -594,7 +594,7 @@ export const createDashboardMarkdown = (
       .join('\n')}`
   }
   if (topFeatures.length > 0) {
-    dashboard_issues_body += `\n\n## Top feature requests\n`
+    dashboard_issues_body += `\n\n## Top feature requests <a href="#top-feature-requests" id="top-feature-requests"/>\n`
     dashboard_issues_body += `\n${topFeatures
       .map((feature, idx) =>
         showTotalReactions
@@ -604,7 +604,7 @@ export const createDashboardMarkdown = (
       .join('\n')}`
   }
   if (topPRs.length > 0) {
-    dashboard_issues_body += `\n\n## Top PRs\n`
+    dashboard_issues_body += `\n\n## Top PRs <a href="#top-prs" id="top-prs"/>\n`
     dashboard_issues_body += `\n${topPRs
       .map((PR, idx) =>
         showTotalReactions
@@ -614,7 +614,7 @@ export const createDashboardMarkdown = (
       .join('\n')}`
   }
   if (topCustom.length > 0) {
-    dashboard_issues_body += `\n\n## Top '${topCustomLabel}' issues\n`
+    dashboard_issues_body += `\n\n## Top '${topCustomLabel}' issues <a href="#top-${topCustomLabel}" id="top-${topCustomLabel}"/>\n`
     dashboard_issues_body += `\n${topCustom
       .map((issue, idx) =>
         showTotalReactions
@@ -624,7 +624,7 @@ export const createDashboardMarkdown = (
       .join('\n')}`
   }
   if (topCustomPRs.length > 0) {
-    dashboard_issues_body += `\n\n## Top '${topCustomPRsLabel}' pull requests\n`
+    dashboard_issues_body += `\n\n## Top '${topCustomPRsLabel}' pull requests <a href="#top-${topCustomPRsLabel}-prs" id="top-${topCustomPRsLabel}-prs"/>\n`
     dashboard_issues_body += `\n${topCustomPRs
       .map((issue, idx) =>
         showTotalReactions
